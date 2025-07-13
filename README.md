@@ -1,1 +1,1 @@
-# Nyoki Pproduct Pricing
+# Nyoki Product Pricing
