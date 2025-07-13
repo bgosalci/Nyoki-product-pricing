@@ -1,19 +1,37 @@
+/**
+ * Simple in-memory data store.
+ * Local storage usage is commented out for easy external deployment.
+ */
 const DataManager = (function() {
     const storageKey = 'nyokiData';
+    let memoryStore = {};
 
+    /**
+     * Retrieve stored data.
+     * @returns {Object}
+     */
     function getData() {
-        const data = localStorage.getItem(storageKey);
-        return data ? JSON.parse(data) : {};
+        // const data = localStorage.getItem(storageKey);
+        // return data ? JSON.parse(data) : {};
+        return memoryStore;
     }
 
+    /**
+     * Save data back to the store.
+     * @param {Object} newData
+     */
     function saveData(newData) {
-        const data = getData();
-        const updated = { ...data, ...newData };
-        localStorage.setItem(storageKey, JSON.stringify(updated));
+        const updated = { ...memoryStore, ...newData };
+        memoryStore = updated;
+        // localStorage.setItem(storageKey, JSON.stringify(updated));
     }
 
+    /**
+     * Clear stored data.
+     */
     function clearData() {
-        localStorage.removeItem(storageKey);
+        memoryStore = {};
+        // localStorage.removeItem(storageKey);
     }
 
     return {
