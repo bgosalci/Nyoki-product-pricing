@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyoki Product Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="main-header">
+        <img src="Nyoki-transparent-logo-lrg.png" alt="Nyoki Logo" class="logo">
+        <nav class="menu">
+            <button id="categoriesBtn">Manage Product Categories</button>
+            <button id="settingsBtn">Settings</button>
+        </nav>
+    </header>
+
+    <nav class="page-options">
+        <a href="manage-products.html">Manage Products</a>
+        <a href="view-products.html">View Products</a>
+    </nav>
+
+    <main class="content">
+        <h1>Welcome to Nyoki</h1>
+        <p>Select an option above to get started.</p>
+    </main>
+
+    <div id="categoriesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-close="categoriesModal">&times;</span>
+            <h2>Manage Product Categories</h2>
+            <p>Category management coming soon.</p>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-close="settingsModal">&times;</span>
+            <h2>Settings</h2>
+            <p>Settings options coming soon.</p>
+        </div>
+    </div>
+
+    <script src="dataManagement.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
