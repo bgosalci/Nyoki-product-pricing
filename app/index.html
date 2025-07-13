@@ -530,7 +530,7 @@
             function loadFromLocalStorage() {
                 const savedProducts = localStorage.getItem('nyoki_products');
                 const savedCounter = localStorage.getItem('nyoki_counter');
-                
+
                 if (savedProducts) {
                     products = JSON.parse(savedProducts);
                 }
@@ -540,6 +540,71 @@
                 renderProducts();
             }
             */
+
+            // Group storage helpers
+            function saveGroupsToStorage() {
+                localStorage.setItem('nyoki_groups', JSON.stringify(groups));
+                localStorage.setItem('nyoki_group_counter', groupCounter.toString());
+            }
+
+            function loadGroupsFromStorage() {
+                const savedGroups = localStorage.getItem('nyoki_groups');
+                const savedGroupCounter = localStorage.getItem('nyoki_group_counter');
+                if (savedGroups) {
+                    groups = JSON.parse(savedGroups);
+                }
+                if (savedGroupCounter) {
+                    groupCounter = parseInt(savedGroupCounter);
+                } else {
+                    groupCounter = groups.reduce((max, g) => Math.max(max, g.id || 0), 0);
+                }
+            }
+
+            function renderGroups() {
+                const container = document.getElementById('groupsList');
+                if (!groups.length) {
+                    container.innerHTML = '<p style="text-align: center; color: #999; font-style: italic;">No groups created yet</p>';
+                    return;
+                }
+                container.innerHTML = groups.map((g, idx) => {
+                    if (isEditingGroup && editingGroupIndex === idx) {
+                        return `
+                            <div class="group-item" style="border-left: 4px solid ${g.color}; padding: 8px; margin-bottom: 8px;">
+                                <input type="text" id="editGroupName_${idx}" value="${g.name}" style="width:100%; margin-bottom:5px;">
+                                <textarea id="editGroupDescription_${idx}" rows="2" style="width:100%; margin-bottom:5px;">${g.description || ''}</textarea>
+                                <input type="color" id="editGroupColor_${idx}" value="${g.color}">
+                                <div style="margin-top:5px;">
+                                    <button class="btn btn-edit" onclick="ProductManager.saveGroupEdit(${idx})">Save</button>
+                                    <button class="btn" onclick="ProductManager.cancelGroupEdit()">Cancel</button>
+                                </div>
+                            </div>`;
+                    }
+                    return `
+                        <div class="group-item" style="border-left: 4px solid ${g.color}; padding: 8px; margin-bottom: 8px; display:flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${g.name}</strong>
+                                ${g.description ? `<div style="font-size:0.9em; color:#666;">${g.description}</div>` : ''}
+                            </div>
+                            <div>
+                                <button class="btn btn-edit" onclick="ProductManager.editGroup(${idx})" style="margin-right:5px;">Edit</button>
+                                <button class="btn btn-danger" onclick="ProductManager.removeGroup(${idx})">Delete</button>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+
+            function populateGroupDropdowns() {
+                const productSelect = document.getElementById('productGroup');
+                const filterSelect = document.getElementById('filterByGroup');
+
+                const options = groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+                if (productSelect) {
+                    productSelect.innerHTML = '<option value="">No Group</option>' + options;
+                }
+                if (filterSelect) {
+                    filterSelect.innerHTML = '<option value="">All Groups</option>' + options;
+                }
+            }
 
             // Private function to calculate costs
             function calculateCosts() {
@@ -1051,8 +1116,8 @@
 
                     renderGroups();
                     populateGroupDropdowns();
+                    saveGroupsToStorage();
                     this.clearGroupForm();
-                    // When using outside Claude.ai, add: saveToLocalStorage();
                 },
 
                 editGroup: function(index) {
@@ -1087,7 +1152,7 @@
                     editingGroupIndex = -1;
                     renderGroups();
                     populateGroupDropdowns();
-                    // When using outside Claude.ai, add: saveToLocalStorage();
+                    saveGroupsToStorage();
                 },
 
                 cancelGroupEdit: function() {
@@ -1117,7 +1182,7 @@
                         renderGroups();
                         populateGroupDropdowns();
                         renderProducts();
-                        // When using outside Claude.ai, add: saveToLocalStorage();
+                        saveGroupsToStorage();
                     }
                 },
 
@@ -1129,6 +1194,7 @@
 
                 // Initialize groups
                 init: function() {
+                    loadGroupsFromStorage();
                     populateGroupDropdowns();
                     renderGroups();
                     renderProducts();
