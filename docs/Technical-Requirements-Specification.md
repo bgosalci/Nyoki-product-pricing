@@ -1,4 +1,4 @@
-lculator
+Nyoki Product Pricing Calculator
 Version: 1.0
 Date: July 2025
 Author: Development Team
