@@ -455,9 +455,9 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Your Products</h2>
-                    <div>
-                        <input type="text" id="searchInput" placeholder="Search products..." oninput="searchAndFilterProducts()" style="margin-right: 10px; padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
-                        <select id="filterByGroup" onchange="searchAndFilterProducts()" style="margin-right: 10px; padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="searchInput" placeholder="Search products..." oninput="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
+                        <select id="filterByGroup" onchange="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
                             <option value="">All Groups</option>
                         </select>
                         <button class="btn" onclick="showView('add-edit')">Add New Product</button>
