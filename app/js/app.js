@@ -51,6 +51,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the app
     ProductManager.init();
-
-    // When using outside Claude.ai, add: ProductManager.loadFromLocalStorage();
 });

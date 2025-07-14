@@ -11,11 +11,6 @@ const ProductManager = (function() {
     let isEditingGroup = false;
     let editingGroupIndex = -1;
 
-    // LOCAL STORAGE NOTE:
-    // localStorage is not supported in Claude.ai artifacts environment
-    // To add localStorage when using this code elsewhere, uncomment the functions below:
-
-    /*
     // Save products to localStorage
     function saveToLocalStorage() {
         localStorage.setItem('nyoki_products', JSON.stringify(products));
@@ -35,7 +30,6 @@ const ProductManager = (function() {
         }
         renderProducts();
     }
-    */
 
     // Group storage helpers
     function saveGroupsToStorage() {
@@ -465,7 +459,7 @@ const ProductManager = (function() {
 
                 renderProducts();
                 this.clearForm();
-                // When using outside Claude.ai, add: saveToLocalStorage();
+                saveToLocalStorage();
 
                 // Switch to view products after saving
                 if (!isEditing) {
@@ -489,7 +483,7 @@ const ProductManager = (function() {
             if (confirm('Are you sure you want to delete this product?')) {
                 products.splice(index, 1);
                 renderProducts();
-                // When using outside Claude.ai, add: saveToLocalStorage();
+                saveToLocalStorage();
             }
         },
 
@@ -678,6 +672,7 @@ const ProductManager = (function() {
                 populateGroupDropdowns();
                 renderProducts();
                 saveGroupsToStorage();
+                saveToLocalStorage();
             }
         },
 
@@ -689,6 +684,7 @@ const ProductManager = (function() {
 
         // Initialize groups
         init: function() {
+            loadFromLocalStorage();
             loadGroupsFromStorage();
             populateGroupDropdowns();
             renderGroups();
@@ -698,9 +694,6 @@ const ProductManager = (function() {
         renderProducts: function(filterGroupId) {
             renderProducts(filterGroupId);
         }
-
-        // Uncomment when using outside Claude.ai:
-        // loadFromLocalStorage: loadFromLocalStorage
     };
 })();
 
