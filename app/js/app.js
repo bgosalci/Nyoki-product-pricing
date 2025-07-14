@@ -11,6 +11,10 @@ function saveGroup() {
     ProductManager.saveGroup();
 }
 
+function saveMarketplace() {
+    ProductManager.saveMarketplace();
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByGroup');
     const searchInput = document.getElementById('searchInput');
