@@ -41,12 +41,12 @@
         card.appendChild(actions);
 
         const cost = document.createElement('div');
-        cost.className = 'cost-details hidden';
+        cost.className = 'cost-details';
 
         const materialsCost = p.materials.reduce((sum, m) => sum + m.cost, 0);
 
         cost.innerHTML = `
-            <div class="profit-analysis">
+            <div class="profit-analysis hidden">
                 <div class="profit-row">
                     <span>Materials Cost:</span>
                     <span>£${materialsCost.toFixed(2)}</span>
@@ -88,10 +88,11 @@
                     ${p.materials.map(m => `<div style="font-size: 0.9em; color: #666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('')}
                 </div>
             </div>`;
+        const profitDetails = cost.querySelector('.profit-analysis');
         card.appendChild(cost);
 
         toggle.addEventListener('click', () => {
-            const hidden = cost.classList.toggle('hidden');
+            const hidden = profitDetails.classList.toggle('hidden');
             toggle.textContent = hidden ? 'Show Costs' : 'Hide Costs';
         });
 
