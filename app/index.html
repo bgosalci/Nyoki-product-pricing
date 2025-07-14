@@ -144,6 +144,21 @@
             color: #5a4a4a;
         }
 
+        .checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #e8ddd4;
+            border-radius: 4px;
+            accent-color: #6b5b73;
+            cursor: pointer;
+        }
+
         input, textarea, select {
             width: 100%;
             padding: 12px;
@@ -490,7 +505,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label><input type="checkbox" id="groupHasVAT" onchange="document.getElementById('groupVATPercent').style.display=this.checked?'block':'none';"> Items in this group have VAT</label>
+                        <label class="checkbox-label"><input type="checkbox" id="groupHasVAT" onchange="document.getElementById('groupVATPercent').style.display=this.checked?'block':'none';"> Items in this group have VAT</label>
                         <input type="number" id="groupVATPercent" placeholder="VAT %" step="0.01" style="display:none; margin-top:5px;">
                     </div>
 
