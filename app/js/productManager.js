@@ -3,13 +3,17 @@ const ProductManager = (function() {
     let products = [];
     let materials = [];
     let groups = [];
+    let marketplaces = [];
     let productCounter = 0;
     let groupCounter = 0;
+    let marketplaceCounter = 0;
     let isEditing = false;
     let editingProductIndex = -1;
     let editingMaterialIndex = -1;
     let isEditingGroup = false;
     let editingGroupIndex = -1;
+    let isEditingMarketplace = false;
+    let editingMarketplaceIndex = -1;
 
     // Save products to localStorage
     function saveToLocalStorage() {
@@ -24,6 +28,11 @@ const ProductManager = (function() {
 
         if (savedProducts) {
             products = JSON.parse(savedProducts);
+            // migrate existing products
+            products.forEach(p => {
+                if (p.marketplaceId === undefined) p.marketplaceId = null;
+                if (p.marketplaceFee === undefined) p.marketplaceFee = 0;
+            });
         }
         if (savedCounter) {
             productCounter = parseInt(savedCounter);
@@ -92,6 +101,70 @@ const ProductManager = (function() {
         }).join('');
     }
 
+    // Marketplace storage helpers
+    function saveMarketplacesToStorage() {
+        localStorage.setItem('nyoki_marketplaces', JSON.stringify(marketplaces));
+        localStorage.setItem('nyoki_marketplace_counter', marketplaceCounter.toString());
+    }
+
+    function loadMarketplacesFromStorage() {
+        const savedMarketplaces = localStorage.getItem('nyoki_marketplaces');
+        const savedMarketplaceCounter = localStorage.getItem('nyoki_marketplace_counter');
+        if (savedMarketplaces) {
+            marketplaces = JSON.parse(savedMarketplaces);
+            marketplaces.forEach(m => {
+                if (m.chargePercent === undefined) m.chargePercent = 0;
+                if (m.chargeFixed === undefined) m.chargeFixed = 0;
+            });
+        }
+        if (savedMarketplaceCounter) {
+            marketplaceCounter = parseInt(savedMarketplaceCounter);
+        } else {
+            marketplaceCounter = marketplaces.reduce((max, m) => Math.max(max, m.id || 0), 0);
+        }
+    }
+
+    function renderMarketplaces() {
+        const container = document.getElementById('marketplacesList');
+        if (!container) return;
+        if (!marketplaces.length) {
+            container.innerHTML = '<p style="text-align: center; color:#999; font-style: italic;">No marketplaces created yet</p>';
+            return;
+        }
+        container.innerHTML = marketplaces.map((m, idx) => {
+            if (isEditingMarketplace && editingMarketplaceIndex === idx) {
+                return `
+                            <div class="group-item" style="padding:8px; margin-bottom:8px;">\
+                                <input type="text" id="editMarketplaceName_${idx}" value="${m.name}" style="width:100%; margin-bottom:5px;">\
+                                <input type="number" id="editMarketplacePercent_${idx}" value="${m.chargePercent}" step="0.01" style="width:100%; margin-bottom:5px;" placeholder="% Charge">\
+                                <input type="number" id="editMarketplaceFixed_${idx}" value="${m.chargeFixed}" step="0.01" style="width:100%; margin-bottom:5px;" placeholder="Fixed Charge">\
+                                <div style="margin-top:5px;">\
+                                    <button class="btn btn-edit" onclick="ProductManager.saveMarketplaceEdit(${idx})">Save</button>\
+                                    <button class="btn" onclick="ProductManager.cancelMarketplaceEdit()">Cancel</button>\
+                                </div>\
+                            </div>`;
+            }
+            return `
+                        <div class="group-item" style="padding:8px; margin-bottom:8px; display:flex; justify-content: space-between; align-items: center;">\
+                            <div>\
+                                <strong>${m.name}</strong>\
+                                <div style="font-size:0.9em; color:#666;">${m.chargePercent}% + £${m.chargeFixed.toFixed(2)}</div>\
+                            </div>\
+                            <div>\
+                                <button class="btn btn-edit" onclick="ProductManager.editMarketplace(${idx})" style="margin-right:5px;">Edit</button>\
+                                <button class="btn btn-danger" onclick="ProductManager.removeMarketplace(${idx})">Delete</button>\
+                            </div>\
+                        </div>`;
+        }).join('');
+    }
+
+    function populateMarketplaceDropdown() {
+        const select = document.getElementById('productMarketplace');
+        if (!select) return;
+        const options = marketplaces.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        select.innerHTML = '<option value="">No Marketplace</option>' + options;
+    }
+
     function populateGroupDropdowns() {
         const productSelect = document.getElementById('productGroup');
         const filterSelect = document.getElementById('filterByGroup');
@@ -143,7 +216,10 @@ const ProductManager = (function() {
             finalRetailPrice = basePrice * (1 + vatRate / 100);
         }
 
-        let profit = basePrice - costs.totalCost;
+        const selectedMarketplaceId = document.getElementById('productMarketplace').value;
+        const marketplace = marketplaces.find(m => m.id === parseInt(selectedMarketplaceId));
+        const marketplaceFee = marketplace ? finalRetailPrice * ((parseFloat(marketplace.chargePercent) || 0) / 100) + (parseFloat(marketplace.chargeFixed) || 0) : 0;
+        let profit = basePrice - costs.totalCost - marketplaceFee;
         let calculatedMargin = (profit / costs.totalCost) * 100;
 
         const breakdown = document.getElementById('costBreakdown');
@@ -179,6 +255,7 @@ const ProductManager = (function() {
                             <span>Retail Price:</span>
                             <span>£${finalRetailPrice.toFixed(2)}</span>
                         </div>
+                        ${marketplaceFee > 0 ? `<div class="profit-row"><span>Marketplace Fee:</span><span>£${marketplaceFee.toFixed(2)}</span></div>` : ''}
                         <div class="profit-row total">
                             <span>Profit:</span>
                             <span>£${profit.toFixed(2)}</span>
@@ -347,14 +424,15 @@ const ProductManager = (function() {
                                     <span>£${product.totalCost.toFixed(2)}</span>
                                 </div>
                                 ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${(product.retailPrice - (product.retailPrice / (1 + product.vatRate / 100))).toFixed(2)}</span></div>` : ''}
-                                <div class="profit-row">
-                                    <span>Retail Price:</span>
-                                    <span>£${product.retailPrice.toFixed(2)}</span>
-                                </div>
-                                <div class="profit-row total">
-                                    <span>Profit:</span>
-                                    <span>£${product.profit.toFixed(2)}</span>
-                                </div>
+                               <div class="profit-row">
+                                   <span>Retail Price:</span>
+                                   <span>£${product.retailPrice.toFixed(2)}</span>
+                               </div>
+                                ${product.marketplaceFee ? `<div class="profit-row"><span>Marketplace Fee:</span><span>£${product.marketplaceFee.toFixed(2)}</span></div>` : ''}
+                               <div class="profit-row total">
+                                   <span>Profit:</span>
+                                   <span>£${product.profit.toFixed(2)}</span>
+                               </div>
                                 <div class="profit-row total">
                                     <span>Margin:</span>
                                     <span>${product.margin.toFixed(1)}%</span>
@@ -464,13 +542,18 @@ const ProductManager = (function() {
                 basePrice = costs.totalCost * (1 + marginPercent / 100);
                 finalRetailPrice = basePrice * (1 + vatRate / 100);
             }
-            const finalMargin = ((basePrice - costs.totalCost) / costs.totalCost) * 100;
-            const profit = basePrice - costs.totalCost;
+            const selectedMarketplaceId = document.getElementById('productMarketplace').value;
+            const marketplace = marketplaces.find(m => m.id === parseInt(selectedMarketplaceId));
+            const marketplaceFee = marketplace ? finalRetailPrice * ((parseFloat(marketplace.chargePercent) || 0) / 100) + (parseFloat(marketplace.chargeFixed) || 0) : 0;
+            const profit = basePrice - costs.totalCost - marketplaceFee;
+            const finalMargin = (profit / costs.totalCost) * 100;
             const vatAmount = finalRetailPrice - basePrice;
 
             const productData = {
                 name,
                 groupId: document.getElementById('productGroup').value || null,
+                marketplaceId: selectedMarketplaceId ? parseInt(selectedMarketplaceId) : null,
+                marketplaceFee,
                 materials: [...materials],
                 laborCost: costs.laborCost,
                 overheadCost: costs.overheadCost,
@@ -543,6 +626,7 @@ const ProductManager = (function() {
             // Populate form with product data
             document.getElementById('productName').value = product.name;
             document.getElementById('productGroup').value = product.groupId || '';
+            document.getElementById('productMarketplace').value = product.marketplaceId || '';
             document.getElementById('laborCost').value = product.laborCost;
             document.getElementById('overheadCost').value = product.overheadCost;
             document.getElementById('postCost').value = product.postCost || 0;
@@ -552,7 +636,8 @@ const ProductManager = (function() {
             // Calculate margin from current data including VAT
             const vatRate = product.vatRate || 0;
             const basePrice = vatRate > 0 ? product.retailPrice / (1 + vatRate / 100) : product.retailPrice;
-            const calculatedMargin = ((basePrice - product.totalCost) / product.totalCost) * 100;
+            const mpFee = product.marketplaceFee || 0;
+            const calculatedMargin = ((basePrice - product.totalCost - mpFee) / product.totalCost) * 100;
             document.getElementById('marginPercent').value = calculatedMargin.toFixed(1);
 
             // Load materials
@@ -578,6 +663,7 @@ const ProductManager = (function() {
         clearForm: function() {
             document.getElementById('productName').value = '';
             document.getElementById('productGroup').value = '';
+            document.getElementById('productMarketplace').value = '';
             document.getElementById('productImage').value = '';
             document.getElementById('laborCost').value = '';
             document.getElementById('overheadCost').value = '';
@@ -742,12 +828,104 @@ const ProductManager = (function() {
             document.getElementById('groupVATPercent').style.display = 'none';
         },
 
-        // Initialize groups
+        // Marketplace management functions
+        saveMarketplace: function() {
+            const name = document.getElementById('marketplaceName').value.trim();
+            const percent = parseFloat(document.getElementById('marketplacePercent').value) || 0;
+            const fixed = parseFloat(document.getElementById('marketplaceFixed').value) || 0;
+
+            if (!name) {
+                Popup.alert('Please enter a marketplace name');
+                return;
+            }
+
+            const data = { name, chargePercent: percent, chargeFixed: fixed };
+
+            if (isEditingMarketplace) {
+                const existing = marketplaces[editingMarketplaceIndex];
+                data.id = existing.id;
+                marketplaces[editingMarketplaceIndex] = data;
+                this.cancelMarketplaceEdit();
+            } else {
+                data.id = ++marketplaceCounter;
+                marketplaces.push(data);
+            }
+
+            renderMarketplaces();
+            populateMarketplaceDropdown();
+            saveMarketplacesToStorage();
+            this.clearMarketplaceForm();
+        },
+
+        editMarketplace: function(index) {
+            isEditingMarketplace = true;
+            editingMarketplaceIndex = index;
+            renderMarketplaces();
+        },
+
+        saveMarketplaceEdit: function(index) {
+            const nameInput = document.getElementById(`editMarketplaceName_${index}`);
+            const percentInput = document.getElementById(`editMarketplacePercent_${index}`);
+            const fixedInput = document.getElementById(`editMarketplaceFixed_${index}`);
+
+            const newName = nameInput.value.trim();
+            if (!newName) {
+                Popup.alert('Please enter a valid marketplace name');
+                return;
+            }
+            marketplaces[index] = {
+                id: marketplaces[index].id,
+                name: newName,
+                chargePercent: parseFloat(percentInput.value) || 0,
+                chargeFixed: parseFloat(fixedInput.value) || 0
+            };
+
+            isEditingMarketplace = false;
+            editingMarketplaceIndex = -1;
+            renderMarketplaces();
+            populateMarketplaceDropdown();
+            saveMarketplacesToStorage();
+        },
+
+        cancelMarketplaceEdit: function() {
+            isEditingMarketplace = false;
+            editingMarketplaceIndex = -1;
+            renderMarketplaces();
+        },
+
+        removeMarketplace: function(index) {
+            const mp = marketplaces[index];
+            // Remove marketplace reference from products
+            products.forEach(p => {
+                if (p.marketplaceId === mp.id) {
+                    p.profit += p.marketplaceFee;
+                    p.marketplaceId = null;
+                    p.marketplaceFee = 0;
+                }
+            });
+            marketplaces.splice(index, 1);
+            renderMarketplaces();
+            populateMarketplaceDropdown();
+            renderProducts();
+            saveMarketplacesToStorage();
+            saveToLocalStorage();
+        },
+
+        clearMarketplaceForm: function() {
+            document.getElementById('marketplaceName').value = '';
+            document.getElementById('marketplacePercent').value = '';
+            document.getElementById('marketplaceFixed').value = '';
+        },
+
+        // Initialize data
         init: function() {
             loadFromLocalStorage();
             loadGroupsFromStorage();
+            loadMarketplacesFromStorage();
             populateGroupDropdowns();
+            populateMarketplaceDropdown();
             renderGroups();
+            renderMarketplaces();
             renderProducts();
         },
 
