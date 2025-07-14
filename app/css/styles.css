@@ -110,6 +110,14 @@ body {
     gap: 10px;
 }
 
+.filter-bar {
+    position: sticky;
+    top: 60px;
+    background: #fff;
+    z-index: 850;
+    padding: 10px 0;
+}
+
 .product-card {
     background: #fff;
     border-radius: var(--radius);
