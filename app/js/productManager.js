@@ -298,7 +298,9 @@ const ProductManager = (function() {
                    `<div class="profit-row total"><span>${name} Profit:</span><span>£${f.profit.toFixed(2)} (${f.margin.toFixed(1)}%)</span></div>`;
         }).join('');
 
-        breakdown.innerHTML = `
+        const materialsListHtml = materials.map(m => `<div style="font-size: 0.9em; color: #666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
+
+        const costSection = `
                     <div class="profit-analysis">
                         <div class="profit-row">
                             <span>Materials Cost:</span>
@@ -337,9 +339,15 @@ const ProductManager = (function() {
                             <span>Margin:</span>
                             <span>${baseMargin.toFixed(1)}%</span>
                         </div>
-                        ${mpRows}
-                    </div>
-                `;
+                        <div style="margin-top: 15px;">
+                            <div><strong>Materials:</strong></div>
+                            ${materialsListHtml}
+                        </div>
+                    </div>`;
+
+        const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top: 15px;">${mpRows}</div>` : '';
+
+        breakdown.innerHTML = costSection + mpSection;
     }
 
     // Private function to render materials list
@@ -465,13 +473,15 @@ const ProductManager = (function() {
 
     // Helper function to generate product card HTML
     function generateProductCard(product, index) {
-        return `
-                    <div class="product-card">
-                        <div class="product-image">
-                            ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
-                        </div>
-                        <div class="product-info">
-                            <div class="product-name">${product.name}</div>
+        const mpRows = Array.isArray(product.marketplaces) ? product.marketplaces.map(mp => {
+            const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+            return `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>` +
+                   `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
+        }).join('') : '';
+
+        const materialsListHtml = product.materials.map(m => `<div style="font-size: 0.9em; color: #666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
+
+        const costSection = `
                             <div class="profit-analysis">
                                 <div class="profit-row">
                                     <span>Materials Cost:</span>
@@ -510,16 +520,23 @@ const ProductManager = (function() {
                                    <span>Margin:</span>
                                    <span>${(product.baseMargin !== undefined ? product.baseMargin : ((product.retailPrice / (1 + (product.vatRate || 0) / 100) - product.totalCost) / product.totalCost * 100)).toFixed(1)}%</span>
                                </div>
-                                ${Array.isArray(product.marketplaces) ? product.marketplaces.map(mp => {
-                                    const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
-                                    return `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>` +
-                                           `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
-                                }).join('') : ''}
-                                <div style="margin-top: 15px;">
-                                    <div><strong>Materials:</strong></div>
-                                    ${product.materials.map(m => `<div style="font-size: 0.9em; color: #666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('')}
-                                </div>
-                            </div>
+                               <div style="margin-top: 15px;">
+                                   <div><strong>Materials:</strong></div>
+                                   ${materialsListHtml}
+                               </div>
+                            </div>`;
+
+        const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top: 15px;">${mpRows}</div>` : '';
+
+        return `
+                    <div class="product-card">
+                        <div class="product-image">
+                            ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            ${costSection}
+                            ${mpSection}
                             <div style="margin-top: 15px; display: flex; gap: 10px;">
                                 <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit Product</button>
                                 <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete Product</button>
