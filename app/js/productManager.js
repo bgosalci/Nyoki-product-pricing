@@ -30,8 +30,21 @@ const ProductManager = (function() {
             products = JSON.parse(savedProducts);
             // migrate existing products
             products.forEach(p => {
-                if (p.marketplaceId === undefined) p.marketplaceId = null;
-                if (p.marketplaceFee === undefined) p.marketplaceFee = 0;
+                if (!p.marketplaces) {
+                    if (p.marketplaceId) {
+                        const mp = marketplaces.find(m => m.id === p.marketplaceId);
+                        p.marketplaces = [{
+                            id: p.marketplaceId,
+                            chargePercent: mp ? mp.chargePercent : 0,
+                            chargeFixed: mp ? mp.chargeFixed : 0,
+                            fee: p.marketplaceFee || 0
+                        }];
+                    } else {
+                        p.marketplaces = [];
+                    }
+                }
+                delete p.marketplaceId;
+                delete p.marketplaceFee;
             });
         }
         if (savedCounter) {
@@ -158,11 +171,34 @@ const ProductManager = (function() {
         }).join('');
     }
 
-    function populateMarketplaceDropdown() {
-        const select = document.getElementById('productMarketplace');
-        if (!select) return;
-        const options = marketplaces.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-        select.innerHTML = '<option value="">No Marketplace</option>' + options;
+    function renderMarketplaceOptions(selected = []) {
+        const container = document.getElementById('marketplaceOptions');
+        if (!container) return;
+        container.innerHTML = marketplaces.map(m => {
+            const sel = selected.find(s => s.id === m.id);
+            return `
+                        <div class="marketplace-option">
+                            <label class="checkbox-label"><input type="checkbox" class="mp-select" value="${m.id}" ${sel ? 'checked' : ''} onchange="ProductManager.updateBreakdown()"> ${m.name}</label>
+                            <div class="mp-inputs" style="${sel ? '' : 'display:none;'}">
+                                <input type="number" class="mp-percent" data-id="${m.id}" step="0.01" placeholder="%" value="${sel ? sel.chargePercent : m.chargePercent}">
+                                <input type="number" class="mp-fixed" data-id="${m.id}" step="0.01" placeholder="£" value="${sel ? sel.chargeFixed : m.chargeFixed}">
+                            </div>
+                        </div>`;
+        }).join('');
+        container.querySelectorAll('.mp-select').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const inputs = cb.parentElement.nextElementSibling;
+                if (cb.checked) {
+                    inputs.style.display = '';
+                } else {
+                    inputs.style.display = 'none';
+                }
+                updateCostBreakdown();
+            });
+        });
+        container.querySelectorAll('.mp-percent, .mp-fixed').forEach(inp => {
+            inp.addEventListener('input', updateCostBreakdown);
+        });
     }
 
     function populateGroupDropdowns() {
@@ -216,14 +252,29 @@ const ProductManager = (function() {
             finalRetailPrice = basePrice * (1 + vatRate / 100);
         }
 
-        const selectedMarketplaceId = document.getElementById('productMarketplace').value;
-        const marketplace = marketplaces.find(m => m.id === parseInt(selectedMarketplaceId));
-        const marketplaceFee = marketplace ? finalRetailPrice * ((parseFloat(marketplace.chargePercent) || 0) / 100) + (parseFloat(marketplace.chargeFixed) || 0) : 0;
+        const selectedMarketplaces = [];
+        document.querySelectorAll('#marketplaceOptions .mp-select').forEach(cb => {
+            if (cb.checked) {
+                const id = parseInt(cb.value);
+                const percent = parseFloat(document.querySelector(`.mp-percent[data-id="${id}"]`).value) || 0;
+                const fixed = parseFloat(document.querySelector(`.mp-fixed[data-id="${id}"]`).value) || 0;
+                selectedMarketplaces.push({ id, chargePercent: percent, chargeFixed: fixed });
+            }
+        });
+        const feeDetails = selectedMarketplaces.map(mp => ({
+            id: mp.id,
+            fee: finalRetailPrice * (mp.chargePercent / 100) + mp.chargeFixed
+        }));
+        const marketplaceFee = feeDetails.reduce((sum, f) => sum + f.fee, 0);
         let profit = basePrice - costs.totalCost - marketplaceFee;
         let calculatedMargin = (profit / costs.totalCost) * 100;
 
         const breakdown = document.getElementById('costBreakdown');
         const vatAmount = finalRetailPrice - basePrice;
+        const mpRows = feeDetails.map(f => {
+            const name = (marketplaces.find(m => m.id === f.id) || {}).name || 'Marketplace';
+            return `<div class="profit-row"><span>${name} Fee:</span><span>£${f.fee.toFixed(2)}</span></div>`;
+        }).join('');
         breakdown.innerHTML = `
                     <div class="profit-analysis">
                         <div class="profit-row">
@@ -255,7 +306,7 @@ const ProductManager = (function() {
                             <span>Retail Price:</span>
                             <span>£${finalRetailPrice.toFixed(2)}</span>
                         </div>
-                        ${marketplaceFee > 0 ? `<div class="profit-row"><span>Marketplace Fee:</span><span>£${marketplaceFee.toFixed(2)}</span></div>` : ''}
+                        ${mpRows}
                         <div class="profit-row total">
                             <span>Profit:</span>
                             <span>£${profit.toFixed(2)}</span>
@@ -428,7 +479,10 @@ const ProductManager = (function() {
                                    <span>Retail Price:</span>
                                    <span>£${product.retailPrice.toFixed(2)}</span>
                                </div>
-                                ${product.marketplaceFee ? `<div class="profit-row"><span>Marketplace Fee:</span><span>£${product.marketplaceFee.toFixed(2)}</span></div>` : ''}
+                                ${Array.isArray(product.marketplaces) ? product.marketplaces.map(mp => {
+                                    const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+                                    return `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>`;
+                                }).join('') : ''}
                                <div class="profit-row total">
                                    <span>Profit:</span>
                                    <span>£${product.profit.toFixed(2)}</span>
@@ -542,9 +596,22 @@ const ProductManager = (function() {
                 basePrice = costs.totalCost * (1 + marginPercent / 100);
                 finalRetailPrice = basePrice * (1 + vatRate / 100);
             }
-            const selectedMarketplaceId = document.getElementById('productMarketplace').value;
-            const marketplace = marketplaces.find(m => m.id === parseInt(selectedMarketplaceId));
-            const marketplaceFee = marketplace ? finalRetailPrice * ((parseFloat(marketplace.chargePercent) || 0) / 100) + (parseFloat(marketplace.chargeFixed) || 0) : 0;
+            const selectedMarketplaces = [];
+            document.querySelectorAll('#marketplaceOptions .mp-select').forEach(cb => {
+                if (cb.checked) {
+                    const id = parseInt(cb.value);
+                    const percent = parseFloat(document.querySelector(`.mp-percent[data-id="${id}"]`).value) || 0;
+                    const fixed = parseFloat(document.querySelector(`.mp-fixed[data-id="${id}"]`).value) || 0;
+                    selectedMarketplaces.push({ id, chargePercent: percent, chargeFixed: fixed });
+                }
+            });
+            const feeDetails = selectedMarketplaces.map(mp => ({
+                id: mp.id,
+                fee: finalRetailPrice * (mp.chargePercent / 100) + mp.chargeFixed,
+                chargePercent: mp.chargePercent,
+                chargeFixed: mp.chargeFixed
+            }));
+            const marketplaceFee = feeDetails.reduce((sum, f) => sum + f.fee, 0);
             const profit = basePrice - costs.totalCost - marketplaceFee;
             const finalMargin = (profit / costs.totalCost) * 100;
             const vatAmount = finalRetailPrice - basePrice;
@@ -552,8 +619,7 @@ const ProductManager = (function() {
             const productData = {
                 name,
                 groupId: document.getElementById('productGroup').value || null,
-                marketplaceId: selectedMarketplaceId ? parseInt(selectedMarketplaceId) : null,
-                marketplaceFee,
+                marketplaces: feeDetails,
                 materials: [...materials],
                 laborCost: costs.laborCost,
                 overheadCost: costs.overheadCost,
@@ -626,7 +692,7 @@ const ProductManager = (function() {
             // Populate form with product data
             document.getElementById('productName').value = product.name;
             document.getElementById('productGroup').value = product.groupId || '';
-            document.getElementById('productMarketplace').value = product.marketplaceId || '';
+            renderMarketplaceOptions(product.marketplaces || []);
             document.getElementById('laborCost').value = product.laborCost;
             document.getElementById('overheadCost').value = product.overheadCost;
             document.getElementById('postCost').value = product.postCost || 0;
@@ -636,7 +702,7 @@ const ProductManager = (function() {
             // Calculate margin from current data including VAT
             const vatRate = product.vatRate || 0;
             const basePrice = vatRate > 0 ? product.retailPrice / (1 + vatRate / 100) : product.retailPrice;
-            const mpFee = product.marketplaceFee || 0;
+            const mpFee = Array.isArray(product.marketplaces) ? product.marketplaces.reduce((s, m) => s + m.fee, 0) : 0;
             const calculatedMargin = ((basePrice - product.totalCost - mpFee) / product.totalCost) * 100;
             document.getElementById('marginPercent').value = calculatedMargin.toFixed(1);
 
@@ -663,7 +729,7 @@ const ProductManager = (function() {
         clearForm: function() {
             document.getElementById('productName').value = '';
             document.getElementById('productGroup').value = '';
-            document.getElementById('productMarketplace').value = '';
+            renderMarketplaceOptions();
             document.getElementById('productImage').value = '';
             document.getElementById('laborCost').value = '';
             document.getElementById('overheadCost').value = '';
@@ -852,7 +918,7 @@ const ProductManager = (function() {
             }
 
             renderMarketplaces();
-            populateMarketplaceDropdown();
+            renderMarketplaceOptions();
             saveMarketplacesToStorage();
             this.clearMarketplaceForm();
         },
@@ -883,7 +949,7 @@ const ProductManager = (function() {
             isEditingMarketplace = false;
             editingMarketplaceIndex = -1;
             renderMarketplaces();
-            populateMarketplaceDropdown();
+            renderMarketplaceOptions();
             saveMarketplacesToStorage();
         },
 
@@ -891,21 +957,25 @@ const ProductManager = (function() {
             isEditingMarketplace = false;
             editingMarketplaceIndex = -1;
             renderMarketplaces();
+            renderMarketplaceOptions();
         },
 
         removeMarketplace: function(index) {
             const mp = marketplaces[index];
             // Remove marketplace reference from products
             products.forEach(p => {
-                if (p.marketplaceId === mp.id) {
-                    p.profit += p.marketplaceFee;
-                    p.marketplaceId = null;
-                    p.marketplaceFee = 0;
+                if (p.marketplaces) {
+                    const i = p.marketplaces.findIndex(m => m.id === mp.id);
+                    if (i !== -1) {
+                        p.profit += p.marketplaces[i].fee;
+                        p.marketplaces.splice(i, 1);
+                        p.margin = (p.profit / p.totalCost) * 100;
+                    }
                 }
             });
             marketplaces.splice(index, 1);
             renderMarketplaces();
-            populateMarketplaceDropdown();
+            renderMarketplaceOptions();
             renderProducts();
             saveMarketplacesToStorage();
             saveToLocalStorage();
@@ -919,11 +989,11 @@ const ProductManager = (function() {
 
         // Initialize data
         init: function() {
+            loadMarketplacesFromStorage();
             loadFromLocalStorage();
             loadGroupsFromStorage();
-            loadMarketplacesFromStorage();
             populateGroupDropdowns();
-            populateMarketplaceDropdown();
+            renderMarketplaceOptions();
             renderGroups();
             renderMarketplaces();
             renderProducts();

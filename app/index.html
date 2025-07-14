@@ -238,6 +238,15 @@
             color: #6b5b73;
         }
 
+        .marketplace-options .marketplace-option {
+            margin-bottom: 8px;
+        }
+
+        .marketplace-option input[type="number"] {
+            width: 90px;
+            margin-left: 5px;
+        }
+
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -425,10 +434,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="productMarketplace">Marketplace</label>
-                        <select id="productMarketplace">
-                            <option value="">No Marketplace</option>
-                        </select>
+                        <label>Marketplaces</label>
+                        <div id="marketplaceOptions" class="marketplace-options"></div>
                     </div>
 
                     <div class="form-group">
