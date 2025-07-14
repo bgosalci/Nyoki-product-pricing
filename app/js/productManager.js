@@ -68,7 +68,7 @@ const ProductManager = (function() {
                                 <input type="text" id="editGroupName_${idx}" value="${g.name}" style="width:100%; margin-bottom:5px;">
                                 <textarea id="editGroupDescription_${idx}" rows="2" style="width:100%; margin-bottom:5px;">${g.description || ''}</textarea>
                                 <input type="color" id="editGroupColor_${idx}" value="${g.color}" style="margin-bottom:5px;">
-                                <label style="display:block; margin-bottom:5px;">
+                                <label class="checkbox-label" style="margin-bottom:5px;">
                                     <input type="checkbox" id="editGroupHasVAT_${idx}" ${g.hasVAT ? 'checked' : ''} onchange="document.getElementById('editGroupVATPercent_${idx}').style.display=this.checked?'block':'none';"> VAT Applicable
                                 </label>
                                 <input type="number" id="editGroupVATPercent_${idx}" value="${g.vatPercent}" step="0.01" style="width:100%; margin-bottom:5px; ${g.hasVAT ? '' : 'display:none;'}" placeholder="VAT %">
