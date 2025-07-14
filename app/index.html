@@ -238,6 +238,15 @@
             color: #6b5b73;
         }
 
+        .marketplace-options .marketplace-option {
+            margin-bottom: 8px;
+        }
+
+        .marketplace-option input[type="number"] {
+            width: 90px;
+            margin-left: 5px;
+        }
+
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -403,6 +412,7 @@
                 <button class="nav-btn active" onclick="showView('add-edit')">Add/Edit Product</button>
                 <button class="nav-btn" onclick="showView('view-products')">View Products</button>
                 <button class="nav-btn" onclick="showView('manage-groups')">Manage Groups</button>
+                <button class="nav-btn" onclick="showView('manage-marketplaces')">Manage Marketplaces</button>
             </div>
         </div>
 
@@ -421,6 +431,11 @@
                         <select id="productGroup">
                             <option value="">No Group</option>
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marketplaces</label>
+                        <div id="marketplaceOptions" class="marketplace-options"></div>
                     </div>
 
                     <div class="form-group">
@@ -542,6 +557,35 @@
                     <h2>Existing Groups</h2>
                     <div id="groupsList">
                         <p style="text-align: center; color: #999; font-style: italic;">No groups created yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Marketplaces View -->
+        <div id="manage-marketplaces-view" class="view-section">
+            <div class="main-content">
+                <div class="card">
+                    <h2>Create New Marketplace</h2>
+                    <div class="form-group">
+                        <label for="marketplaceName">Marketplace Name</label>
+                        <input type="text" id="marketplaceName" placeholder="Enter marketplace name">
+                    </div>
+                    <div class="form-group">
+                        <label for="marketplacePercent">Charge Percentage (%)</label>
+                        <input type="number" id="marketplacePercent" step="0.01" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="marketplaceFixed">Fixed Charge (£)</label>
+                        <input type="number" id="marketplaceFixed" step="0.01" placeholder="0.00">
+                    </div>
+                    <button class="btn" onclick="saveMarketplace()">Save Marketplace</button>
+                </div>
+
+                <div class="card">
+                    <h2>Existing Marketplaces</h2>
+                    <div id="marketplacesList">
+                        <p style="text-align: center; color: #999; font-style: italic;">No marketplaces created yet</p>
                     </div>
                 </div>
             </div>

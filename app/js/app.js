@@ -11,6 +11,10 @@ function saveGroup() {
     ProductManager.saveGroup();
 }
 
+function saveMarketplace() {
+    ProductManager.saveMarketplace();
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByGroup');
     const searchInput = document.getElementById('searchInput');
@@ -41,6 +45,9 @@ function showView(viewName) {
     } else if (viewName === 'manage-groups') {
         document.getElementById('manage-groups-view').classList.add('active');
         document.querySelectorAll('.nav-btn')[2].classList.add('active');
+    } else if (viewName === 'manage-marketplaces') {
+        document.getElementById('manage-marketplaces-view').classList.add('active');
+        document.querySelectorAll('.nav-btn')[3].classList.add('active');
     }
 }
 
