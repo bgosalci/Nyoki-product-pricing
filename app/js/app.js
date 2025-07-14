@@ -11,10 +11,12 @@ function saveGroup() {
     ProductManager.saveGroup();
 }
 
-function filterProductsByGroup() {
+function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByGroup');
+    const searchInput = document.getElementById('searchInput');
     const selectedGroupId = filterSelect.value;
-    ProductManager.renderProducts(selectedGroupId);
+    const query = searchInput.value.trim();
+    ProductManager.renderProducts(selectedGroupId, query);
 }
 
 // Navigation function

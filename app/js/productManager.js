@@ -211,16 +211,25 @@ const ProductManager = (function() {
     }
 
     // Private function to render products
-    function renderProducts(filterGroupId = '') {
+    function renderProducts(filterGroupId = '', searchQuery = '') {
         const productsList = document.getElementById('productsList');
 
         let filteredProducts = products;
         if (filterGroupId) {
-            filteredProducts = products.filter(p => p.groupId === filterGroupId);
+            filteredProducts = filteredProducts.filter(p => p.groupId === filterGroupId);
+        }
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(q));
         }
 
         if (filteredProducts.length === 0) {
-            const message = filterGroupId ? 'No products in this group' : 'No products created yet';
+            let message = 'No products created yet';
+            if (searchQuery) {
+                message = 'No matching products';
+            } else if (filterGroupId) {
+                message = 'No products in this group';
+            }
             productsList.innerHTML = `<p style="text-align: center; color: #999; font-style: italic; grid-column: 1/-1;">${message}</p>`;
             return;
         }
@@ -691,8 +700,8 @@ const ProductManager = (function() {
             renderProducts();
         },
 
-        renderProducts: function(filterGroupId) {
-            renderProducts(filterGroupId);
+        renderProducts: function(filterGroupId, searchQuery) {
+            renderProducts(filterGroupId, searchQuery);
         }
     };
 })();
