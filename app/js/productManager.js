@@ -283,6 +283,7 @@ const ProductManager = (function() {
         });
 
         const baseProfit = basePrice - costs.totalCost;
+        const baseMargin = (baseProfit / costs.totalCost) * 100;
         const feeDetails = selectedMarketplaces.map(mp => {
             const fee = finalRetailPrice * (mp.chargePercent / 100) + mp.chargeFixed;
             const profit = baseProfit - fee;
@@ -327,6 +328,14 @@ const ProductManager = (function() {
                         <div class="profit-row total">
                             <span>Retail Price:</span>
                             <span>£${finalRetailPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="profit-row total">
+                            <span>Profit:</span>
+                            <span>£${baseProfit.toFixed(2)}</span>
+                        </div>
+                        <div class="profit-row total">
+                            <span>Margin:</span>
+                            <span>${baseMargin.toFixed(1)}%</span>
                         </div>
                         ${mpRows}
                     </div>
@@ -492,6 +501,14 @@ const ProductManager = (function() {
                                <div class="profit-row">
                                    <span>Retail Price:</span>
                                    <span>£${product.retailPrice.toFixed(2)}</span>
+                               </div>
+                               <div class="profit-row total">
+                                   <span>Profit:</span>
+                                   <span>£${(product.baseProfit !== undefined ? product.baseProfit : ((product.retailPrice / (1 + (product.vatRate || 0) / 100)) - product.totalCost)).toFixed(2)}</span>
+                               </div>
+                               <div class="profit-row total">
+                                   <span>Margin:</span>
+                                   <span>${(product.baseMargin !== undefined ? product.baseMargin : ((product.retailPrice / (1 + (product.vatRate || 0) / 100) - product.totalCost) / product.totalCost * 100)).toFixed(1)}%</span>
                                </div>
                                 ${Array.isArray(product.marketplaces) ? product.marketplaces.map(mp => {
                                     const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
