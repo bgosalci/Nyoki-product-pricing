@@ -133,9 +133,17 @@ const ProductManager = (function() {
         const group = groups.find(g => g.id === parseInt(selectedGroupId));
         const vatRate = group && group.hasVAT ? group.vatPercent : 0;
 
-        let basePrice = retailPriceInput > 0 ? retailPriceInput : costs.totalCost * (1 + marginPercent / 100);
-        let finalRetailPrice = basePrice * (1 + vatRate / 100);
-        let profit = finalRetailPrice - costs.totalCost;
+        let finalRetailPrice;
+        let basePrice;
+        if (retailPriceInput > 0) {
+            finalRetailPrice = retailPriceInput;
+            basePrice = vatRate > 0 ? finalRetailPrice / (1 + vatRate / 100) : finalRetailPrice;
+        } else {
+            basePrice = costs.totalCost * (1 + marginPercent / 100);
+            finalRetailPrice = basePrice * (1 + vatRate / 100);
+        }
+
+        let profit = basePrice - costs.totalCost;
         let calculatedMargin = (profit / costs.totalCost) * 100;
 
         const breakdown = document.getElementById('costBreakdown');
@@ -338,9 +346,10 @@ const ProductManager = (function() {
                                     <span>Total Cost:</span>
                                     <span>£${product.totalCost.toFixed(2)}</span>
                                 </div>
+                                ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${(product.retailPrice - (product.retailPrice / (1 + product.vatRate / 100))).toFixed(2)}</span></div>` : ''}
                                 <div class="profit-row">
                                     <span>Retail Price:</span>
-                                    <span>£${(product.finalPrice || (product.retailPrice * (1 + (product.vatRate || 0) / 100))).toFixed(2)}</span>
+                                    <span>£${product.retailPrice.toFixed(2)}</span>
                                 </div>
                                 <div class="profit-row total">
                                     <span>Profit:</span>
@@ -446,10 +455,18 @@ const ProductManager = (function() {
             const group = groups.find(g => g.id === parseInt(selectedGroupId));
             const vatRate = group && group.hasVAT ? group.vatPercent : 0;
 
-            const basePrice = retailPriceInput > 0 ? retailPriceInput : costs.totalCost * (1 + marginPercent / 100);
-            const finalRetailPrice = basePrice * (1 + vatRate / 100);
-            const finalMargin = ((finalRetailPrice - costs.totalCost) / costs.totalCost) * 100;
-            const profit = finalRetailPrice - costs.totalCost;
+            let finalRetailPrice;
+            let basePrice;
+            if (retailPriceInput > 0) {
+                finalRetailPrice = retailPriceInput;
+                basePrice = vatRate > 0 ? finalRetailPrice / (1 + vatRate / 100) : finalRetailPrice;
+            } else {
+                basePrice = costs.totalCost * (1 + marginPercent / 100);
+                finalRetailPrice = basePrice * (1 + vatRate / 100);
+            }
+            const finalMargin = ((basePrice - costs.totalCost) / costs.totalCost) * 100;
+            const profit = basePrice - costs.totalCost;
+            const vatAmount = finalRetailPrice - basePrice;
 
             const productData = {
                 name,
@@ -460,11 +477,11 @@ const ProductManager = (function() {
                 postCost: costs.postCost,
                 packagingCost: costs.packagingCost,
                 totalCost: costs.totalCost,
-                retailPrice: basePrice,
+                retailPrice: finalRetailPrice,
                 vatRate,
-                finalPrice: finalRetailPrice,
                 margin: finalMargin,
-                profit
+                profit,
+                vatAmount
             };
 
             const saveProductData = (imageData = null) => {
@@ -534,8 +551,8 @@ const ProductManager = (function() {
 
             // Calculate margin from current data including VAT
             const vatRate = product.vatRate || 0;
-            const priceWithVAT = product.finalPrice || (product.retailPrice * (1 + vatRate / 100));
-            const calculatedMargin = ((priceWithVAT - product.totalCost) / product.totalCost) * 100;
+            const basePrice = vatRate > 0 ? product.retailPrice / (1 + vatRate / 100) : product.retailPrice;
+            const calculatedMargin = ((basePrice - product.totalCost) / product.totalCost) * 100;
             document.getElementById('marginPercent').value = calculatedMargin.toFixed(1);
 
             // Load materials
