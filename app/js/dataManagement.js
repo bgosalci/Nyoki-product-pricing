@@ -11,8 +11,10 @@ const DataManager = (function() {
      * @returns {Object}
      */
     function getData() {
-        // const data = localStorage.getItem(storageKey);
-        // return data ? JSON.parse(data) : {};
+        const data = localStorage.getItem(storageKey);
+        if (data) {
+            memoryStore = JSON.parse(data);
+        }
         return memoryStore;
     }
 
@@ -23,7 +25,7 @@ const DataManager = (function() {
     function saveData(newData) {
         const updated = { ...memoryStore, ...newData };
         memoryStore = updated;
-        // localStorage.setItem(storageKey, JSON.stringify(updated));
+        localStorage.setItem(storageKey, JSON.stringify(updated));
     }
 
     /**
@@ -31,7 +33,7 @@ const DataManager = (function() {
      */
     function clearData() {
         memoryStore = {};
-        // localStorage.removeItem(storageKey);
+        localStorage.removeItem(storageKey);
     }
 
     return {
