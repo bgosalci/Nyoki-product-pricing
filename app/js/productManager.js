@@ -380,7 +380,7 @@ const ProductManager = (function() {
             const cost = parseFloat(document.getElementById('materialCost').value);
 
             if (!name || isNaN(cost) || cost < 0) {
-                alert('Please enter valid material name and cost');
+                Popup.alert('Please enter valid material name and cost');
                 return;
             }
 
@@ -416,7 +416,7 @@ const ProductManager = (function() {
             const newCost = parseFloat(costInput.value);
 
             if (!newName || isNaN(newCost) || newCost < 0) {
-                alert('Please enter valid material name and cost');
+                Popup.alert('Please enter valid material name and cost');
                 return;
             }
 
@@ -439,12 +439,12 @@ const ProductManager = (function() {
             const imageFile = document.getElementById('productImage').files[0];
 
             if (!name) {
-                alert('Please enter a product name');
+                Popup.alert('Please enter a product name');
                 return;
             }
 
             if (materials.length === 0) {
-                alert('Please add at least one material');
+                Popup.alert('Please add at least one material');
                 return;
             }
 
@@ -527,11 +527,11 @@ const ProductManager = (function() {
         },
 
         removeProduct: function(index) {
-            if (confirm('Are you sure you want to delete this product?')) {
+            Popup.confirm('Are you sure you want to delete this product?', () => {
                 products.splice(index, 1);
                 renderProducts();
                 saveToLocalStorage();
-            }
+            });
         },
 
         editProduct: function(index) {
@@ -632,7 +632,7 @@ const ProductManager = (function() {
             const vatPercent = hasVAT ? parseFloat(document.getElementById('groupVATPercent').value) || 0 : 0;
 
             if (!name) {
-                alert('Please enter a group name');
+                Popup.alert('Please enter a group name');
                 return;
             }
 
@@ -681,7 +681,7 @@ const ProductManager = (function() {
             const newColor = colorInput.value;
 
             if (!newName) {
-                alert('Please enter a valid group name');
+                Popup.alert('Please enter a valid group name');
                 return;
             }
 
@@ -716,7 +716,7 @@ const ProductManager = (function() {
                 confirmMessage += `\n\nThis will ungroup ${productsInGroup} product${productsInGroup !== 1 ? 's' : ''}, but the products will not be deleted.`;
             }
 
-            if (confirm(confirmMessage)) {
+            Popup.confirm(confirmMessage, () => {
                 // Remove group reference from products
                 products.forEach(product => {
                     if (product.groupId === group.id) {
@@ -730,7 +730,7 @@ const ProductManager = (function() {
                 renderProducts();
                 saveGroupsToStorage();
                 saveToLocalStorage();
-            }
+            });
         },
 
         clearGroupForm: function() {
