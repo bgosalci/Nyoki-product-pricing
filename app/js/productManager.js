@@ -42,6 +42,11 @@ const ProductManager = (function() {
         const savedGroupCounter = localStorage.getItem('nyoki_group_counter');
         if (savedGroups) {
             groups = JSON.parse(savedGroups);
+            // Ensure VAT fields exist for older data
+            groups.forEach(g => {
+                if (g.hasVAT === undefined) g.hasVAT = false;
+                if (g.vatPercent === undefined) g.vatPercent = 0;
+            });
         }
         if (savedGroupCounter) {
             groupCounter = parseInt(savedGroupCounter);
@@ -62,7 +67,11 @@ const ProductManager = (function() {
                             <div class="group-item" style="border-left: 4px solid ${g.color}; padding: 8px; margin-bottom: 8px;">
                                 <input type="text" id="editGroupName_${idx}" value="${g.name}" style="width:100%; margin-bottom:5px;">
                                 <textarea id="editGroupDescription_${idx}" rows="2" style="width:100%; margin-bottom:5px;">${g.description || ''}</textarea>
-                                <input type="color" id="editGroupColor_${idx}" value="${g.color}">
+                                <input type="color" id="editGroupColor_${idx}" value="${g.color}" style="margin-bottom:5px;">
+                                <label style="display:block; margin-bottom:5px;">
+                                    <input type="checkbox" id="editGroupHasVAT_${idx}" ${g.hasVAT ? 'checked' : ''} onchange="document.getElementById('editGroupVATPercent_${idx}').style.display=this.checked?'block':'none';"> VAT Applicable
+                                </label>
+                                <input type="number" id="editGroupVATPercent_${idx}" value="${g.vatPercent}" step="0.01" style="width:100%; margin-bottom:5px; ${g.hasVAT ? '' : 'display:none;'}" placeholder="VAT %">
                                 <div style="margin-top:5px;">
                                     <button class="btn btn-edit" onclick="ProductManager.saveGroupEdit(${idx})">Save</button>
                                     <button class="btn" onclick="ProductManager.cancelGroupEdit()">Cancel</button>
@@ -119,13 +128,18 @@ const ProductManager = (function() {
     function updateCostBreakdown() {
         const costs = calculateCosts();
         const marginPercent = parseFloat(document.getElementById('marginPercent').value) || 0;
-        const retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0;
+        const retailPriceInput = parseFloat(document.getElementById('retailPrice').value) || 0;
+        const selectedGroupId = document.getElementById('productGroup').value;
+        const group = groups.find(g => g.id === parseInt(selectedGroupId));
+        const vatRate = group && group.hasVAT ? group.vatPercent : 0;
 
-        let calculatedRetailPrice = costs.totalCost * (1 + marginPercent / 100);
-        let calculatedMargin = retailPrice > 0 ? ((retailPrice - costs.totalCost) / costs.totalCost * 100) : marginPercent;
-        let profit = (retailPrice > 0 ? retailPrice : calculatedRetailPrice) - costs.totalCost;
+        let basePrice = retailPriceInput > 0 ? retailPriceInput : costs.totalCost * (1 + marginPercent / 100);
+        let finalRetailPrice = basePrice * (1 + vatRate / 100);
+        let profit = finalRetailPrice - costs.totalCost;
+        let calculatedMargin = (profit / costs.totalCost) * 100;
 
         const breakdown = document.getElementById('costBreakdown');
+        const vatAmount = finalRetailPrice - basePrice;
         breakdown.innerHTML = `
                     <div class="profit-analysis">
                         <div class="profit-row">
@@ -152,9 +166,10 @@ const ProductManager = (function() {
                             <span>Total Cost:</span>
                             <span>£${costs.totalCost.toFixed(2)}</span>
                         </div>
+                        ${vatRate > 0 ? `<div class="profit-row total"><span>VAT (${vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
                         <div class="profit-row total">
                             <span>Retail Price:</span>
-                            <span>£${(retailPrice > 0 ? retailPrice : calculatedRetailPrice).toFixed(2)}</span>
+                            <span>£${finalRetailPrice.toFixed(2)}</span>
                         </div>
                         <div class="profit-row total">
                             <span>Profit:</span>
@@ -325,7 +340,7 @@ const ProductManager = (function() {
                                 </div>
                                 <div class="profit-row">
                                     <span>Retail Price:</span>
-                                    <span>£${product.retailPrice.toFixed(2)}</span>
+                                    <span>£${(product.finalPrice || (product.retailPrice * (1 + (product.vatRate || 0) / 100))).toFixed(2)}</span>
                                 </div>
                                 <div class="profit-row total">
                                     <span>Profit:</span>
@@ -426,9 +441,13 @@ const ProductManager = (function() {
 
             const costs = calculateCosts();
             const marginPercent = parseFloat(document.getElementById('marginPercent').value) || 0;
-            const retailPrice = parseFloat(document.getElementById('retailPrice').value) || 0;
+            const retailPriceInput = parseFloat(document.getElementById('retailPrice').value) || 0;
+            const selectedGroupId = document.getElementById('productGroup').value;
+            const group = groups.find(g => g.id === parseInt(selectedGroupId));
+            const vatRate = group && group.hasVAT ? group.vatPercent : 0;
 
-            const finalRetailPrice = retailPrice > 0 ? retailPrice : costs.totalCost * (1 + marginPercent / 100);
+            const basePrice = retailPriceInput > 0 ? retailPriceInput : costs.totalCost * (1 + marginPercent / 100);
+            const finalRetailPrice = basePrice * (1 + vatRate / 100);
             const finalMargin = ((finalRetailPrice - costs.totalCost) / costs.totalCost) * 100;
             const profit = finalRetailPrice - costs.totalCost;
 
@@ -441,7 +460,9 @@ const ProductManager = (function() {
                 postCost: costs.postCost,
                 packagingCost: costs.packagingCost,
                 totalCost: costs.totalCost,
-                retailPrice: finalRetailPrice,
+                retailPrice: basePrice,
+                vatRate,
+                finalPrice: finalRetailPrice,
                 margin: finalMargin,
                 profit
             };
@@ -511,8 +532,10 @@ const ProductManager = (function() {
             document.getElementById('packagingCost').value = product.packagingCost || 0;
             document.getElementById('retailPrice').value = product.retailPrice;
 
-            // Calculate margin from current data
-            const calculatedMargin = ((product.retailPrice - product.totalCost) / product.totalCost) * 100;
+            // Calculate margin from current data including VAT
+            const vatRate = product.vatRate || 0;
+            const priceWithVAT = product.finalPrice || (product.retailPrice * (1 + vatRate / 100));
+            const calculatedMargin = ((priceWithVAT - product.totalCost) / product.totalCost) * 100;
             document.getElementById('marginPercent').value = calculatedMargin.toFixed(1);
 
             // Load materials
@@ -588,6 +611,8 @@ const ProductManager = (function() {
             const name = document.getElementById('groupName').value.trim();
             const description = document.getElementById('groupDescription').value.trim();
             const color = document.getElementById('groupColor').value;
+            const hasVAT = document.getElementById('groupHasVAT').checked;
+            const vatPercent = hasVAT ? parseFloat(document.getElementById('groupVATPercent').value) || 0 : 0;
 
             if (!name) {
                 alert('Please enter a group name');
@@ -597,7 +622,9 @@ const ProductManager = (function() {
             const groupData = {
                 name,
                 description,
-                color
+                color,
+                hasVAT,
+                vatPercent
             };
 
             if (isEditingGroup) {
@@ -629,6 +656,8 @@ const ProductManager = (function() {
             const nameInput = document.getElementById(`editGroupName_${index}`);
             const descriptionInput = document.getElementById(`editGroupDescription_${index}`);
             const colorInput = document.getElementById(`editGroupColor_${index}`);
+            const vatCheck = document.getElementById(`editGroupHasVAT_${index}`);
+            const vatInput = document.getElementById(`editGroupVATPercent_${index}`);
 
             const newName = nameInput.value.trim();
             const newDescription = descriptionInput.value.trim();
@@ -643,7 +672,9 @@ const ProductManager = (function() {
                 id: groups[index].id,
                 name: newName,
                 description: newDescription,
-                color: newColor
+                color: newColor,
+                hasVAT: vatCheck.checked,
+                vatPercent: vatCheck.checked ? parseFloat(vatInput.value) || 0 : 0
             };
 
             isEditingGroup = false;
@@ -689,6 +720,9 @@ const ProductManager = (function() {
             document.getElementById('groupName').value = '';
             document.getElementById('groupDescription').value = '';
             document.getElementById('groupColor').value = '#6b5b73';
+            document.getElementById('groupHasVAT').checked = false;
+            document.getElementById('groupVATPercent').value = '';
+            document.getElementById('groupVATPercent').style.display = 'none';
         },
 
         // Initialize groups

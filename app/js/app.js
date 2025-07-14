@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inputs.forEach(id => {
         document.getElementById(id).addEventListener('input', ProductManager.updateBreakdown);
     });
+    document.getElementById('productGroup').addEventListener('change', ProductManager.updateBreakdown);
 
     // Initialize the app
     ProductManager.init();
