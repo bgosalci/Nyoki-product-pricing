@@ -6,6 +6,10 @@
     --radius: 8px;
 }
 
+.hidden {
+    display: none;
+}
+
 body {
     margin: 0;
     font-family: Georgia, "Times New Roman", Times, serif;
