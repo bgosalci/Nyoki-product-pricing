@@ -1054,6 +1054,8 @@ const ProductManager = (function() {
                 'Total Cost',
                 'Profit',
                 'Margin %',
+                'Labor Cost',
+                'Overhead Cost',
                 'Materials'
             ];
             const rows = products.map(p => {
@@ -1072,6 +1074,8 @@ const ProductManager = (function() {
                     p.totalCost.toFixed(2),
                     profit.toFixed(2),
                     margin.toFixed(1),
+                    p.laborCost !== undefined ? p.laborCost.toFixed(2) : '',
+                    p.overheadCost !== undefined ? p.overheadCost.toFixed(2) : '',
                     materialsStr
                 ];
             });
