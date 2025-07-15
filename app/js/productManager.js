@@ -473,77 +473,76 @@ const ProductManager = (function() {
 
     // Helper function to generate product card HTML
     function generateProductCard(product, index) {
-        const mpRows = Array.isArray(product.marketplaces) ? product.marketplaces.map(mp => {
-            const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
-            return `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>` +
-                   `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
-        }).join('') : '';
+        const vatAmount = product.vatAmount !== undefined
+            ? product.vatAmount
+            : (product.vatRate ? product.retailPrice - (product.retailPrice / (1 + product.vatRate / 100)) : 0);
+        const baseProfit = product.baseProfit !== undefined
+            ? product.baseProfit
+            : ((product.retailPrice / (1 + (product.vatRate || 0) / 100)) - product.totalCost);
+        const baseMargin = product.baseMargin !== undefined
+            ? product.baseMargin
+            : (baseProfit / product.totalCost) * 100;
 
-        const materialsListHtml = product.materials.map(m => `<div style="font-size: 0.9em; color: #666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
+        const marketplaceSummary = Array.isArray(product.marketplaces)
+            ? product.marketplaces.slice(0, 2).map(mp => {
+                const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+                return `<div class="profit-analysis">
+                            <div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>
+                            <div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>
+                        </div>`;
+            }).join('')
+            : '';
 
-        const costSection = `
-                            <div class="profit-analysis">
-                                <div class="profit-row">
-                                    <span>Materials Cost:</span>
-                                    <span>£${product.materials.reduce((sum, m) => sum + m.cost, 0).toFixed(2)}</span>
-                                </div>
-                                <div class="profit-row">
-                                    <span>Labor Cost:</span>
-                                    <span>£${product.laborCost.toFixed(2)}</span>
-                                </div>
-                                <div class="profit-row">
-                                    <span>Overhead Cost:</span>
-                                    <span>£${product.overheadCost.toFixed(2)}</span>
-                                </div>
-                                <div class="profit-row">
-                                    <span>Post & Shipping:</span>
-                                    <span>£${(product.postCost || 0).toFixed(2)}</span>
-                                </div>
-                                <div class="profit-row">
-                                    <span>Packaging Cost:</span>
-                                    <span>£${(product.packagingCost || 0).toFixed(2)}</span>
-                                </div>
-                                <div class="profit-row total">
-                                    <span>Total Cost:</span>
-                                    <span>£${product.totalCost.toFixed(2)}</span>
-                                </div>
-                                ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${(product.retailPrice - (product.retailPrice / (1 + product.vatRate / 100))).toFixed(2)}</span></div>` : ''}
-                               <div class="profit-row">
-                                   <span>Retail Price:</span>
-                                   <span>£${product.retailPrice.toFixed(2)}</span>
-                               </div>
-                               <div class="profit-row total">
-                                   <span>Profit:</span>
-                                   <span>£${(product.baseProfit !== undefined ? product.baseProfit : ((product.retailPrice / (1 + (product.vatRate || 0) / 100)) - product.totalCost)).toFixed(2)}</span>
-                               </div>
-                               <div class="profit-row total">
-                                   <span>Margin:</span>
-                                   <span>${(product.baseMargin !== undefined ? product.baseMargin : ((product.retailPrice / (1 + (product.vatRate || 0) / 100) - product.totalCost) / product.totalCost * 100)).toFixed(1)}%</span>
-                               </div>
-                               <div style="margin-top: 15px;">
-                                   <div><strong>Materials:</strong></div>
-                                   ${materialsListHtml}
-                               </div>
-                            </div>`;
+        const mpRows = Array.isArray(product.marketplaces)
+            ? product.marketplaces.map(mp => {
+                const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+                return `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>
+                        <div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
+            }).join('')
+            : '';
 
-        const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top: 15px;">${mpRows}</div>` : '';
+        const materialsListHtml = product.materials.map(m => `<div style="font-size: 0.9em; color:#666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
+
+        const costDetails = `
+            <div class="profit-analysis">
+                <div class="profit-row"><span>Materials Cost:</span><span>£${product.materials.reduce((s,m) => s + m.cost, 0).toFixed(2)}</span></div>
+                <div class="profit-row"><span>Labor Cost:</span><span>£${product.laborCost.toFixed(2)}</span></div>
+                <div class="profit-row"><span>Overhead Cost:</span><span>£${product.overheadCost.toFixed(2)}</span></div>
+                <div class="profit-row"><span>Post & Shipping:</span><span>£${(product.postCost || 0).toFixed(2)}</span></div>
+                <div class="profit-row"><span>Packaging Cost:</span><span>£${(product.packagingCost || 0).toFixed(2)}</span></div>
+                <div class="profit-row total"><span>Total Cost:</span><span>£${product.totalCost.toFixed(2)}</span></div>
+                ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
+                <div class="profit-row"><span>Retail Price:</span><span>£${product.retailPrice.toFixed(2)}</span></div>
+                <div class="profit-row total"><span>Profit:</span><span>£${baseProfit.toFixed(2)}</span></div>
+                <div class="profit-row total"><span>Margin:</span><span>${baseMargin.toFixed(1)}%</span></div>
+                <div style="margin-top:15px;"><div><strong>Materials:</strong></div>${materialsListHtml}</div>
+            </div>`;
+
+        const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top:10px;">${mpRows}</div>` : '';
 
         return `
-                    <div class="product-card">
-                        <div class="product-image">
-                            ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
-                        </div>
-                        <div class="product-info">
-                            <div class="product-name">${product.name}</div>
-                            ${costSection}
-                            ${mpSection}
-                            <div style="margin-top: 15px; display: flex; gap: 10px;">
-                                <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit Product</button>
-                                <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete Product</button>
-                            </div>
-                        </div>
+            <div class="product-card">
+                ${product.image ? `<img src="${product.image}" alt="${product.name}" class="product-image">` : ''}
+                <h3>${product.name}</h3>
+                <div class="profit-analysis">
+                    <div class="profit-row"><span>Total Cost:</span><span>£${product.totalCost.toFixed(2)}</span></div>
+                    ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
+                    <div class="profit-row"><span>Retail Price:</span><span>£${product.retailPrice.toFixed(2)}</span></div>
+                    <div class="profit-row"><span>Profit:</span><span>£${baseProfit.toFixed(2)}</span></div>
+                    <div class="profit-row"><span>Margin:</span><span>${baseMargin.toFixed(1)}%</span></div>
+                </div>
+                ${marketplaceSummary}
+                <button class="toggle-btn" aria-expanded="false" onclick="ProductManager.toggleDetails(this)">Show More</button>
+                <div class="extra-details">
+                    ${costDetails}
+                    ${mpSection}
+                    <div style="margin-top:15px; display:flex; gap:10px;">
+                        <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit Product</button>
+                        <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete Product</button>
                     </div>
-                `;
+                    <button class="toggle-btn" onclick="ProductManager.toggleDetails(this)">Show Less</button>
+                </div>
+            </div>`;
     }
 
     // Public methods using closure
@@ -1117,6 +1116,16 @@ const ProductManager = (function() {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        },
+
+        toggleDetails: function(btn) {
+            const card = btn.closest('.product-card');
+            if (!card) return;
+            const expanded = card.classList.toggle('expanded');
+            card.querySelectorAll('.toggle-btn').forEach(b => {
+                b.textContent = expanded ? 'Show Less' : 'Show More';
+                b.setAttribute('aria-expanded', expanded);
+            });
         },
 
         renderProducts: function(filterGroupId, searchQuery) {
