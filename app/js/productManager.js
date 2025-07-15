@@ -1050,6 +1050,11 @@ const ProductManager = (function() {
             return products.slice();
         },
 
+        getMarketplaceName: function(id) {
+            const mp = marketplaces.find(m => m.id === id);
+            return mp ? mp.name : 'Marketplace';
+        },
+
         exportCSV: function() {
             const groupMap = {};
             groups.forEach(g => { groupMap[g.id] = g.name; });
