@@ -1039,6 +1039,71 @@ const ProductManager = (function() {
             renderProducts();
         },
 
+        getProducts: function() {
+            return products.slice();
+        },
+
+        exportCSV: function() {
+            const groupMap = {};
+            groups.forEach(g => { groupMap[g.id] = g.name; });
+            const header = [
+                'ID',
+                'Name',
+                'Group',
+                'Retail Price',
+                'Total Cost',
+                'Profit',
+                'Margin %',
+                'Labor Cost',
+                'Overhead Cost',
+                'Materials',
+                'Marketplaces'
+            ];
+            const rows = products.map(p => {
+                const groupName = p.groupId ? (groupMap[p.groupId] || '') : '';
+                const basePrice = p.retailPrice / (1 + (p.vatRate || 0) / 100);
+                const profit = p.baseProfit !== undefined ? p.baseProfit : basePrice - p.totalCost;
+                const margin = p.baseMargin !== undefined ? p.baseMargin : (profit / p.totalCost) * 100;
+                const materialsStr = (p.materials || [])
+                    .map(m => `${m.name}:${m.cost.toFixed(2)}`)
+                    .join('; ');
+                const marketplacesStr = Array.isArray(p.marketplaces) ?
+                    p.marketplaces.map(mp => {
+                        const mpName = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+                        const percent = mp.chargePercent !== undefined ? mp.chargePercent.toFixed(2) : '0.00';
+                        const fixed = mp.chargeFixed !== undefined ? mp.chargeFixed.toFixed(2) : '0.00';
+                        const fee = mp.fee !== undefined ? mp.fee.toFixed(2) : '0.00';
+                        const profitMp = mp.profit !== undefined ? mp.profit.toFixed(2) : '0.00';
+                        const marginMp = mp.margin !== undefined ? mp.margin.toFixed(1) : '0.0';
+                        return `${mpName}:${percent}%+${fixed}|fee:${fee}|profit:${profitMp}|margin:${marginMp}%`;
+                    }).join('; ') : '';
+                return [
+                    p.id,
+                    p.name,
+                    groupName,
+                    p.retailPrice.toFixed(2),
+                    p.totalCost.toFixed(2),
+                    profit.toFixed(2),
+                    margin.toFixed(1),
+                    p.laborCost !== undefined ? p.laborCost.toFixed(2) : '',
+                    p.overheadCost !== undefined ? p.overheadCost.toFixed(2) : '',
+                    materialsStr,
+                    marketplacesStr
+                ];
+            });
+            let csv = header.join(',') + '\n';
+            csv += rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        },
+
         renderProducts: function(filterGroupId, searchQuery) {
             renderProducts(filterGroupId, searchQuery);
         }
