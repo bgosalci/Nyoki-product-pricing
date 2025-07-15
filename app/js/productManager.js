@@ -1053,13 +1053,17 @@ const ProductManager = (function() {
                 'Retail Price',
                 'Total Cost',
                 'Profit',
-                'Margin %'
+                'Margin %',
+                'Materials'
             ];
             const rows = products.map(p => {
                 const groupName = p.groupId ? (groupMap[p.groupId] || '') : '';
                 const basePrice = p.retailPrice / (1 + (p.vatRate || 0) / 100);
                 const profit = p.baseProfit !== undefined ? p.baseProfit : basePrice - p.totalCost;
                 const margin = p.baseMargin !== undefined ? p.baseMargin : (profit / p.totalCost) * 100;
+                const materialsStr = (p.materials || [])
+                    .map(m => `${m.name}:${m.cost.toFixed(2)}`)
+                    .join('; ');
                 return [
                     p.id,
                     p.name,
@@ -1067,7 +1071,8 @@ const ProductManager = (function() {
                     p.retailPrice.toFixed(2),
                     p.totalCost.toFixed(2),
                     profit.toFixed(2),
-                    margin.toFixed(1)
+                    margin.toFixed(1),
+                    materialsStr
                 ];
             });
             let csv = header.join(',') + '\n';
