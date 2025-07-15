@@ -609,7 +609,9 @@ const ProductManager = (function() {
 
         saveProduct: function() {
             const name = document.getElementById('productName').value.trim();
-            const imageFile = document.getElementById('productImage').files[0];
+            const fileInput = document.getElementById('productImage');
+            const imageFile = fileInput.files[0];
+            const imageLinkValue = document.getElementById('imageLink').value.trim();
 
             if (!name) {
                 Popup.alert('Please enter a product name');
@@ -713,6 +715,8 @@ const ProductManager = (function() {
                     saveProductData(e.target.result);
                 };
                 reader.readAsDataURL(imageFile);
+            } else if (imageLinkValue) {
+                saveProductData(imageLinkValue);
             } else {
                 saveProductData();
             }
@@ -741,6 +745,8 @@ const ProductManager = (function() {
             document.getElementById('postCost').value = product.postCost || 0;
             document.getElementById('packagingCost').value = product.packagingCost || 0;
             document.getElementById('retailPrice').value = product.retailPrice;
+            document.getElementById('productImage').value = '';
+            document.getElementById('imageLink').value = product.image && !product.image.startsWith('data:') ? product.image : '';
 
             // Calculate margin from current data including VAT
             const marginValue = product.baseMargin !== undefined
@@ -773,6 +779,7 @@ const ProductManager = (function() {
             document.getElementById('productGroup').value = '';
             renderMarketplaceOptions();
             document.getElementById('productImage').value = '';
+            document.getElementById('imageLink').value = '';
             document.getElementById('laborCost').value = '';
             document.getElementById('overheadCost').value = '';
             document.getElementById('postCost').value = '';

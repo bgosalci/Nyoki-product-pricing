@@ -42,6 +42,20 @@
         }));
     }
 
+    function getImageSrc() {
+        const fileInput = document.getElementById('imageFile');
+        const linkInput = document.getElementById('imageLink');
+        return new Promise(resolve => {
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                resolve(linkInput ? linkInput.value.trim() : '');
+            }
+        });
+    }
+
     function clearForm() {
         form.reset();
         materialsList.innerHTML = '';
@@ -52,7 +66,8 @@
         ProductModule.getProducts().forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card';
-            card.innerHTML = `<h3>${p.name}</h3>
+            const imageHtml = p.image ? `<img src="${p.image}" alt="${p.name}" class="product-image">` : '';
+            card.innerHTML = `${imageHtml}<h3>${p.name}</h3>
                 <p>Total Cost: £${p.totalCost.toFixed(2)}</p>
                 <p>Retail Price: £${p.retailPrice.toFixed(2)}</p>
                 <p>Profit: £${p.profit.toFixed(2)} (${p.margin}%)</p>`;
@@ -62,10 +77,12 @@
 
     addMaterialBtn.addEventListener('click', createMaterialRow);
 
-    form.addEventListener('submit', event => {
+    form.addEventListener('submit', async event => {
         event.preventDefault();
+        const imageSrc = await getImageSrc();
         const product = {
             name: document.getElementById('productName').value.trim(),
+            image: imageSrc,
             materials: gatherMaterials(),
             laborCost: parseFloat(document.getElementById('laborCost').value) || 0,
             overheadCost: parseFloat(document.getElementById('overheadCost').value) || 0,
