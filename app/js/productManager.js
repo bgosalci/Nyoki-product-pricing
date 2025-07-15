@@ -479,7 +479,50 @@ const ProductManager = (function() {
                    `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
         }).join('') : '';
 
+        const nothRows = [];
+        const otherRows = [];
+        if (Array.isArray(product.marketplaces)) {
+            product.marketplaces.forEach(mp => {
+                const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+                const row = `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>` +
+                            `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
+                if (/noth/i.test(name) || /not on the high/i.test(name)) {
+                    nothRows.push(row);
+                } else if (/amazon/i.test(name)) {
+                    otherRows.push(row);
+                }
+            });
+        }
+
+        const mpSummarySection = (nothRows.length || otherRows.length) ?
+            `<div class="profit-analysis">${nothRows.join('')}${otherRows.join('')}</div>` : '';
+
         const materialsListHtml = product.materials.map(m => `<div style="font-size: 0.9em; color: #666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
+
+        const vatAmount = product.vatRate ? (product.retailPrice - (product.retailPrice / (1 + product.vatRate / 100))) : 0;
+        const baseProfit = product.baseProfit !== undefined ? product.baseProfit : ((product.retailPrice / (1 + (product.vatRate || 0) / 100)) - product.totalCost);
+        const baseMargin = product.baseMargin !== undefined ? product.baseMargin : (baseProfit / product.totalCost * 100);
+
+        const summarySection = `
+                            <div class="profit-analysis">
+                                <div class="profit-row total">
+                                    <span>Total Cost:</span>
+                                    <span>£${product.totalCost.toFixed(2)}</span>
+                                </div>
+                                ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
+                                <div class="profit-row">
+                                    <span>Retail Price:</span>
+                                    <span>£${product.retailPrice.toFixed(2)}</span>
+                                </div>
+                                <div class="profit-row total">
+                                    <span>Profit:</span>
+                                    <span>£${baseProfit.toFixed(2)}</span>
+                                </div>
+                                <div class="profit-row total">
+                                    <span>Margin:</span>
+                                    <span>${baseMargin.toFixed(1)}%</span>
+                                </div>
+                            </div>`;
 
         const costSection = `
                             <div class="profit-analysis">
@@ -507,18 +550,18 @@ const ProductManager = (function() {
                                     <span>Total Cost:</span>
                                     <span>£${product.totalCost.toFixed(2)}</span>
                                 </div>
-                                ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${(product.retailPrice - (product.retailPrice / (1 + product.vatRate / 100))).toFixed(2)}</span></div>` : ''}
+                                ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
                                <div class="profit-row">
                                    <span>Retail Price:</span>
                                    <span>£${product.retailPrice.toFixed(2)}</span>
                                </div>
                                <div class="profit-row total">
                                    <span>Profit:</span>
-                                   <span>£${(product.baseProfit !== undefined ? product.baseProfit : ((product.retailPrice / (1 + (product.vatRate || 0) / 100)) - product.totalCost)).toFixed(2)}</span>
+                                   <span>£${baseProfit.toFixed(2)}</span>
                                </div>
                                <div class="profit-row total">
                                    <span>Margin:</span>
-                                   <span>${(product.baseMargin !== undefined ? product.baseMargin : ((product.retailPrice / (1 + (product.vatRate || 0) / 100) - product.totalCost) / product.totalCost * 100)).toFixed(1)}%</span>
+                                   <span>${baseMargin.toFixed(1)}%</span>
                                </div>
                                <div style="margin-top: 15px;">
                                    <div><strong>Materials:</strong></div>
@@ -529,14 +572,22 @@ const ProductManager = (function() {
         const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top: 15px;">${mpRows}</div>` : '';
 
         return `
-                    <div class="product-card">
+                    <div class="product-card" id="productCard_${index}">
                         <div class="product-image">
                             ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
                         </div>
                         <div class="product-info">
                             <div class="product-name">${product.name}</div>
-                            ${costSection}
-                            ${mpSection}
+                            <div class="card-collapsed">
+                                ${summarySection}
+                                ${mpSummarySection}
+                                <button class="btn btn-secondary" onclick="ProductManager.toggleCardDetails(${index})" style="margin-top:10px;">Show More</button>
+                            </div>
+                            <div class="card-expanded hidden">
+                                ${costSection}
+                                ${mpSection}
+                                <button class="btn btn-secondary" onclick="ProductManager.toggleCardDetails(${index})" style="margin-top:10px;">Show Less</button>
+                            </div>
                             <div style="margin-top: 15px; display: flex; gap: 10px;">
                                 <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit Product</button>
                                 <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete Product</button>
@@ -1007,6 +1058,17 @@ const ProductManager = (function() {
             editingMarketplaceIndex = -1;
             renderMarketplaces();
             renderMarketplaceOptions();
+        },
+
+        toggleCardDetails: function(index) {
+            const card = document.getElementById(`productCard_${index}`);
+            if (!card) return;
+            const collapsed = card.querySelector('.card-collapsed');
+            const expanded = card.querySelector('.card-expanded');
+            if (collapsed && expanded) {
+                collapsed.classList.toggle('hidden');
+                expanded.classList.toggle('hidden');
+            }
         },
 
         removeMarketplace: function(index) {
