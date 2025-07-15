@@ -588,7 +588,7 @@ const ProductManager = (function() {
                                 ${mpSection}
                                 <button class="btn btn-secondary" onclick="ProductManager.toggleCardDetails(${index})" style="margin-top:10px;">Show Less</button>
                             </div>
-                            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <div class="product-buttons">
                                 <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit Product</button>
                                 <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete Product</button>
                             </div>
