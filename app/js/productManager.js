@@ -1056,7 +1056,8 @@ const ProductManager = (function() {
                 'Margin %',
                 'Labor Cost',
                 'Overhead Cost',
-                'Materials'
+                'Materials',
+                'Marketplaces'
             ];
             const rows = products.map(p => {
                 const groupName = p.groupId ? (groupMap[p.groupId] || '') : '';
@@ -1066,6 +1067,16 @@ const ProductManager = (function() {
                 const materialsStr = (p.materials || [])
                     .map(m => `${m.name}:${m.cost.toFixed(2)}`)
                     .join('; ');
+                const marketplacesStr = Array.isArray(p.marketplaces) ?
+                    p.marketplaces.map(mp => {
+                        const mpName = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+                        const percent = mp.chargePercent !== undefined ? mp.chargePercent.toFixed(2) : '0.00';
+                        const fixed = mp.chargeFixed !== undefined ? mp.chargeFixed.toFixed(2) : '0.00';
+                        const fee = mp.fee !== undefined ? mp.fee.toFixed(2) : '0.00';
+                        const profitMp = mp.profit !== undefined ? mp.profit.toFixed(2) : '0.00';
+                        const marginMp = mp.margin !== undefined ? mp.margin.toFixed(1) : '0.0';
+                        return `${mpName}:${percent}%+${fixed}|fee:${fee}|profit:${profitMp}|margin:${marginMp}%`;
+                    }).join('; ') : '';
                 return [
                     p.id,
                     p.name,
@@ -1076,7 +1087,8 @@ const ProductManager = (function() {
                     margin.toFixed(1),
                     p.laborCost !== undefined ? p.laborCost.toFixed(2) : '',
                     p.overheadCost !== undefined ? p.overheadCost.toFixed(2) : '',
-                    materialsStr
+                    materialsStr,
+                    marketplacesStr
                 ];
             });
             let csv = header.join(',') + '\n';
