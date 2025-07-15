@@ -7,6 +7,7 @@
     /** @typedef {Object} Product
      *  @property {number} id
      *  @property {string} name
+     *  @property {string} image
      *  @property {Material[]} materials
      *  @property {number} laborCost
      *  @property {number} overheadCost

@@ -16,6 +16,7 @@ REQ-PROD-001: Users SHALL be able to create new products with the following attr
 
 Product name (required, text, max 255 characters)
 Product image (optional, image file, max 5MB, formats: JPG, PNG, GIF)
+CDN image link (optional, valid URL)
 Product group assignment (optional, dropdown selection)
 Labor cost (decimal, £0.00 format, max £999,999.99)
 Overhead cost (decimal, £0.00 format, max £999,999.99)
