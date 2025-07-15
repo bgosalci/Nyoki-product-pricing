@@ -581,13 +581,14 @@ const ProductManager = (function() {
                             <div class="card-collapsed">
                                 ${summarySection}
                                 ${mpSummarySection}
+                                <button class="btn btn-secondary" onclick="ProductManager.toggleCardDetails(${index})" style="margin-top:10px;">Show More</button>
                             </div>
                             <div class="card-expanded hidden">
                                 ${costSection}
                                 ${mpSection}
+                                <button class="btn btn-secondary" onclick="ProductManager.toggleCardDetails(${index})" style="margin-top:10px;">Show Less</button>
                             </div>
-                            <div class="card-controls" style="margin-top: 15px; display: flex; gap: 10px;">
-                                <button class="btn btn-secondary toggle-details" onclick="ProductManager.toggleCardDetails(${index})">Show More</button>
+                            <div style="margin-top: 15px; display: flex; gap: 10px;">
                                 <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit Product</button>
                                 <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete Product</button>
                             </div>
@@ -1064,13 +1065,9 @@ const ProductManager = (function() {
             if (!card) return;
             const collapsed = card.querySelector('.card-collapsed');
             const expanded = card.querySelector('.card-expanded');
-            const toggleBtn = card.querySelector('.toggle-details');
             if (collapsed && expanded) {
                 collapsed.classList.toggle('hidden');
                 expanded.classList.toggle('hidden');
-                if (toggleBtn) {
-                    toggleBtn.textContent = collapsed.classList.contains('hidden') ? 'Show Less' : 'Show More';
-                }
             }
         },
 
