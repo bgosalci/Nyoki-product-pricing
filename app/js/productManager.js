@@ -1057,6 +1057,7 @@ const ProductManager = (function() {
                 'ID',
                 'Name',
                 'Group',
+                'CDN Image Link',
                 'Retail Price',
                 'Total Cost',
                 'Profit',
@@ -1084,10 +1085,12 @@ const ProductManager = (function() {
                         const marginMp = mp.margin !== undefined ? mp.margin.toFixed(1) : '0.0';
                         return `${mpName}:${percent}%+${fixed}|fee:${fee}|profit:${profitMp}|margin:${marginMp}%`;
                     }).join('; ') : '';
+                const cdnLink = p.image && !p.image.startsWith('data:') ? p.image : '';
                 return [
                     p.id,
                     p.name,
                     groupName,
+                    cdnLink,
                     p.retailPrice.toFixed(2),
                     p.totalCost.toFixed(2),
                     profit.toFixed(2),
