@@ -15,6 +15,10 @@ function saveMarketplace() {
     ProductManager.saveMarketplace();
 }
 
+function exportProducts() {
+    ProductManager.exportCSV();
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByGroup');
     const searchInput = document.getElementById('searchInput');

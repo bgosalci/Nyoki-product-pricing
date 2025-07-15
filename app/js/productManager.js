@@ -1039,6 +1039,50 @@ const ProductManager = (function() {
             renderProducts();
         },
 
+        getProducts: function() {
+            return products.slice();
+        },
+
+        exportCSV: function() {
+            const groupMap = {};
+            groups.forEach(g => { groupMap[g.id] = g.name; });
+            const header = [
+                'ID',
+                'Name',
+                'Group',
+                'Retail Price',
+                'Total Cost',
+                'Profit',
+                'Margin %'
+            ];
+            const rows = products.map(p => {
+                const groupName = p.groupId ? (groupMap[p.groupId] || '') : '';
+                const basePrice = p.retailPrice / (1 + (p.vatRate || 0) / 100);
+                const profit = p.baseProfit !== undefined ? p.baseProfit : basePrice - p.totalCost;
+                const margin = p.baseMargin !== undefined ? p.baseMargin : (profit / p.totalCost) * 100;
+                return [
+                    p.id,
+                    p.name,
+                    groupName,
+                    p.retailPrice.toFixed(2),
+                    p.totalCost.toFixed(2),
+                    profit.toFixed(2),
+                    margin.toFixed(1)
+                ];
+            });
+            let csv = header.join(',') + '\n';
+            csv += rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        },
+
         renderProducts: function(filterGroupId, searchQuery) {
             renderProducts(filterGroupId, searchQuery);
         }
