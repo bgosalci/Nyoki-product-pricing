@@ -132,6 +132,17 @@ body {
     margin-bottom: 10px;
 }
 
+.product-buttons {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+}
+
+.product-buttons .btn {
+    flex: 1;
+    margin: 5px 0;
+}
+
 .modal {
     display: none;
     position: fixed;
