@@ -1019,6 +1019,9 @@ const ProductManager = (function() {
 
             renderMarketplaces();
             renderMarketplaceOptions();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.renderTabs();
+            }
             saveMarketplacesToStorage();
             this.clearMarketplaceForm();
         },
@@ -1050,6 +1053,9 @@ const ProductManager = (function() {
             editingMarketplaceIndex = -1;
             renderMarketplaces();
             renderMarketplaceOptions();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.renderTabs();
+            }
             saveMarketplacesToStorage();
         },
 
@@ -1085,6 +1091,9 @@ const ProductManager = (function() {
             marketplaces.splice(index, 1);
             renderMarketplaces();
             renderMarketplaceOptions();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.renderTabs();
+            }
             renderProducts();
             saveMarketplacesToStorage();
             saveToLocalStorage();
