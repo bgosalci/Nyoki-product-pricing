@@ -21,7 +21,7 @@
     }
 
     function populateFilter(groups) {
-        const select = document.getElementById('categoryFilter');
+        const select = document.getElementById('analysisCategory');
         if (!select) return;
         let options = '<option value="">All Categories</option>';
         groups.forEach(g => {
@@ -50,8 +50,8 @@
     }
 
     function filterRows() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const groupSelect = document.getElementById('categoryFilter');
+        const query = document.getElementById('analysisSearch').value.toLowerCase();
+        const groupSelect = document.getElementById('analysisCategory');
         const groupId = groupSelect ? groupSelect.value : '';
         document.querySelectorAll('#discountTableBody tr').forEach(row => {
             const name = row.dataset.name;
@@ -67,8 +67,8 @@
         populateFilter(groups);
         renderTable(products);
 
-        document.getElementById('searchInput').addEventListener('input', filterRows);
-        const groupSelect = document.getElementById('categoryFilter');
+        document.getElementById('analysisSearch').addEventListener('input', filterRows);
+        const groupSelect = document.getElementById('analysisCategory');
         if (groupSelect) groupSelect.addEventListener('change', filterRows);
     });
 })();

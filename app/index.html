@@ -398,6 +398,29 @@
             justify-content: center;
         }
 
+        .discount-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .discount-table th,
+        .discount-table td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .discount-table th {
+            background-color: #f0f0f0;
+        }
+
+        .disc10 { background-color: #eef7e7; }
+        .disc20 { background-color: #d5efcf; }
+        .disc30 { background-color: #bce7b8; }
+        .disc40 { background-color: #a2e0a0; }
+        .disc50 { background-color: #89d889; }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -434,6 +457,7 @@
                 <button class="nav-btn" onclick="showView('view-products')">View Products</button>
                 <button class="nav-btn" onclick="showView('manage-groups')">Manage Groups</button>
                 <button class="nav-btn" onclick="showView('manage-marketplaces')">Manage Marketplaces</button>
+                <button class="nav-btn" onclick="showView('discount-analysis')">Discount Analysis</button>
             </div>
         </div>
 
@@ -616,10 +640,40 @@
                 </div>
             </div>
         </div>
+
+        <!-- Discount Analysis View -->
+        <div id="discount-analysis-view" class="view-section">
+            <div class="card">
+                <h2>Discount Analysis</h2>
+                <div class="filter-bar" style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="analysisSearch" placeholder="Search products..." style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                    <select id="analysisCategory" style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <table class="discount-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Retail Price</th>
+                            <th>Profit</th>
+                            <th>Margin %</th>
+                            <th class="disc10">10% Off</th>
+                            <th class="disc20">20% Off</th>
+                            <th class="disc30">30% Off</th>
+                            <th class="disc40">40% Off</th>
+                            <th class="disc50">50% Off</th>
+                        </tr>
+                    </thead>
+                    <tbody id="discountTableBody"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script src="js/popup.js"></script>
     <script src="js/productManager.js"></script>
+    <script src="js/discountAnalysis.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
