@@ -1,6 +1,6 @@
 const DiscountAnalysis = (function() {
     let products = [];
-    let groups = [];
+    let categories = [];
     let marketplaces = [];
     let currentMarketplaceId = '';
 
@@ -20,8 +20,8 @@ const DiscountAnalysis = (function() {
         return list;
     }
 
-    function loadGroups() {
-        const data = localStorage.getItem('nyoki_groups');
+    function loadCategories() {
+        const data = localStorage.getItem('nyoki_categories') || localStorage.getItem('nyoki_groups');
         return data ? JSON.parse(data) : [];
     }
 
@@ -34,7 +34,7 @@ const DiscountAnalysis = (function() {
         const select = document.getElementById('analysisCategory');
         if (!select) return;
         let options = '<option value="">All Categories</option>';
-        groups.forEach(g => { options += `<option value="${g.id}">${g.name}</option>`; });
+        categories.forEach(g => { options += `<option value="${g.id}">${g.name}</option>`; });
         select.innerHTML = options;
     }
 
@@ -88,7 +88,7 @@ const DiscountAnalysis = (function() {
                 const margin = p.totalCost ? (profit / p.totalCost * 100) : 0;
                 return `<td class="disc${d}">£${discountedRetailPrice.toFixed(2)}<br>£${profit.toFixed(2)} (${margin.toFixed(1)}%)</td>`;
             }).join('');
-            return `<tr data-name="${p.name.toLowerCase()}" data-group="${p.groupId || ''}">` +
+            return `<tr data-name="${p.name.toLowerCase()}" data-category="${p.categoryId || ''}">` +
                    `<td>${p.name}</td>` +
                    `<td>£${p.retailPrice.toFixed(2)}</td>` +
                    `<td>£${profitDisplay.toFixed(2)}</td>` +
@@ -101,19 +101,19 @@ const DiscountAnalysis = (function() {
 
     function filterRows() {
         const query = document.getElementById('analysisSearch').value.toLowerCase();
-        const groupSelect = document.getElementById('analysisCategory');
-        const groupId = groupSelect ? groupSelect.value : '';
+        const categorySelect = document.getElementById('analysisCategory');
+        const categoryId = categorySelect ? categorySelect.value : '';
         document.querySelectorAll('#discountTableBody tr').forEach(row => {
             const name = row.dataset.name;
-            const group = row.dataset.group;
-            const match = (!query || name.includes(query)) && (!groupId || group === groupId);
+            const category = row.dataset.category;
+            const match = (!query || name.includes(query)) && (!categoryId || category === categoryId);
             row.style.display = match ? '' : 'none';
         });
     }
 
     function refresh() {
         products = loadProducts();
-        groups = loadGroups();
+        categories = loadCategories();
         populateFilter();
         renderTabs();
         filterRows();
@@ -121,13 +121,13 @@ const DiscountAnalysis = (function() {
 
     function init() {
         products = loadProducts();
-        groups = loadGroups();
+        categories = loadCategories();
         populateFilter();
         renderTabs();
         renderTable();
         document.getElementById('analysisSearch').addEventListener('input', filterRows);
-        const groupSelect = document.getElementById('analysisCategory');
-        if (groupSelect) groupSelect.addEventListener('change', filterRows);
+        const categorySelect = document.getElementById('analysisCategory');
+        if (categorySelect) categorySelect.addEventListener('change', filterRows);
     }
 
     return {

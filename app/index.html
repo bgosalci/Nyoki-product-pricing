@@ -67,7 +67,7 @@
             display: block;
         }
 
-        .group-header {
+        .category-header {
             background: linear-gradient(135deg, #f9f7f4 0%, #e8ddd4 100%);
             padding: 15px;
             border-radius: 8px;
@@ -483,7 +483,7 @@
                 <button class="nav-btn active" onclick="showView('add-edit')">Add/Edit Product</button>
                 <button class="nav-btn" onclick="showView('view-products')">View Products</button>
                 <button class="nav-btn" onclick="showView('discount-analysis')">Discount Analysis</button>
-                <button class="nav-btn" onclick="showView('manage-groups')">Manage Groups</button>
+                <button class="nav-btn" onclick="showView('manage-categories')">Manage Categories</button>
                 <button class="nav-btn" onclick="showView('manage-marketplaces')">Manage Marketplaces</button>
             </div>
         </div>
@@ -499,9 +499,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="productGroup">Product Group</label>
-                        <select id="productGroup">
-                            <option value="">No Group</option>
+                        <label for="productCategory">Product Category</label>
+                        <select id="productCategory">
+                            <option value="">No Category</option>
                         </select>
                     </div>
 
@@ -590,8 +590,8 @@
                     <h2>Your Products</h2>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <input type="text" id="searchInput" placeholder="Search products..." oninput="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
-                        <select id="filterByGroup" onchange="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
-                            <option value="">All Groups</option>
+                        <select id="filterByCategory" onchange="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
+                            <option value="">All Categories</option>
                         </select>
                         <button class="btn" onclick="exportProducts()">Export CSV</button>
                         <button class="btn btn-secondary" onclick="importProducts()">Import CSV</button>
@@ -604,38 +604,38 @@
             </div>
         </div>
 
-        <!-- Manage Groups View -->
-        <div id="manage-groups-view" class="view-section">
+        <!-- Manage Categories View -->
+        <div id="manage-categories-view" class="view-section">
             <div class="main-content">
                 <div class="card">
-                    <h2>Create New Group</h2>
+                    <h2>Create New Category</h2>
                     <div class="form-group">
-                        <label for="groupName">Group Name</label>
-                        <input type="text" id="groupName" placeholder="Enter group name">
+                        <label for="categoryName">Category Name</label>
+                        <input type="text" id="categoryName" placeholder="Enter category name">
                     </div>
 
                     <div class="form-group">
-                        <label for="groupDescription">Description (Optional)</label>
-                        <textarea id="groupDescription" placeholder="Describe this product group" rows="3"></textarea>
+                        <label for="categoryDescription">Description (Optional)</label>
+                        <textarea id="categoryDescription" placeholder="Describe this product category" rows="3"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="groupColor">Group Color</label>
-                        <input type="color" id="groupColor" value="#6b5b73">
+                        <label for="categoryColor">Category Color</label>
+                        <input type="color" id="categoryColor" value="#6b5b73">
                     </div>
 
                     <div class="form-group">
-                        <label class="checkbox-label"><input type="checkbox" id="groupHasVAT" onchange="document.getElementById('groupVATPercent').style.display=this.checked?'block':'none';"> Items in this group have VAT</label>
-                        <input type="number" id="groupVATPercent" placeholder="VAT %" step="0.01" style="display:none; margin-top:5px;">
+                        <label class="checkbox-label"><input type="checkbox" id="categoryHasVAT" onchange="document.getElementById('categoryVATPercent').style.display=this.checked?'block':'none';"> Items in this category have VAT</label>
+                        <input type="number" id="categoryVATPercent" placeholder="VAT %" step="0.01" style="display:none; margin-top:5px;">
                     </div>
 
-                    <button class="btn" onclick="saveGroup()">Save Group</button>
+                    <button class="btn" onclick="saveCategory()">Save Category</button>
                 </div>
 
                 <div class="card">
-                    <h2>Existing Groups</h2>
-                    <div id="groupsList">
-                        <p style="text-align: center; color: #999; font-style: italic;">No groups created yet</p>
+                    <h2>Existing Categories</h2>
+                    <div id="categoriesList">
+                        <p style="text-align: center; color: #999; font-style: italic;">No categories created yet</p>
                     </div>
                 </div>
             </div>
