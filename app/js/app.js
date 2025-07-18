@@ -52,6 +52,9 @@ function showView(viewName) {
     } else if (viewName === 'manage-marketplaces') {
         document.getElementById('manage-marketplaces-view').classList.add('active');
         document.querySelectorAll('.nav-btn')[3].classList.add('active');
+    } else if (viewName === 'discount-analysis') {
+        document.getElementById('discount-analysis-view').classList.add('active');
+        document.querySelectorAll('.nav-btn')[4].classList.add('active');
     }
 }
 
