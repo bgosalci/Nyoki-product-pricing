@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Products - Nyoki</title>
+    <title>Discount Analysis - Nyoki</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap" rel="stylesheet">
@@ -20,13 +20,33 @@
 
     <nav class="page-options">
         <a href="manage-products.html">Manage Products</a>
-        <a href="view-products.html" class="active">View Products</a>
-        <a href="discount-analysis.html">Discount Analysis</a>
+        <a href="view-products.html">View Products</a>
+        <a href="discount-analysis.html" class="active">Discount Analysis</a>
     </nav>
 
     <main class="content">
-        <h1>View Products</h1>
-        <div id="productList" class="product-grid"></div>
+        <h1>Discount Analysis</h1>
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="Search products...">
+            <select id="categoryFilter" style="display:none;"></select>
+        </div>
+        <table class="discount-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Total Cost</th>
+                    <th>Retail Price</th>
+                    <th>Profit</th>
+                    <th>Margin</th>
+                    <th class="disc10">10% Off</th>
+                    <th class="disc20">20% Off</th>
+                    <th class="disc30">30% Off</th>
+                    <th class="disc40">40% Off</th>
+                    <th class="disc50">50% Off</th>
+                </tr>
+            </thead>
+            <tbody id="analysisBody"></tbody>
+        </table>
     </main>
 
     <div id="categoriesModal" class="modal">
@@ -48,7 +68,7 @@
     <script src="../js/popup.js"></script>
     <script src="../js/dataManagement.js"></script>
     <script src="../js/productModule.js"></script>
-    <script src="../js/viewProducts.js"></script>
+    <script src="../js/discountAnalysis.js"></script>
     <script src="../js/main.js"></script>
 </body>
 </html>

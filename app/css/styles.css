@@ -211,6 +211,30 @@ body {
     cursor: pointer;
 }
 
+/* Discount analysis table */
+.discount-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.discount-table th,
+.discount-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.discount-table th {
+    background-color: #f0f0f0;
+}
+
+.disc10 { background-color: #e8f5e9; }
+.disc20 { background-color: #fff9e6; }
+.disc30 { background-color: #ffefe6; }
+.disc40 { background-color: #ffe6e6; }
+.disc50 { background-color: #f5e6ff; }
+
 @media (max-width: 600px) {
     .main-header {
         flex-direction: column;
