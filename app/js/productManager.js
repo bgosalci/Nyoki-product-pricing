@@ -479,23 +479,7 @@ const ProductManager = (function() {
                    `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
         }).join('') : '';
 
-        const nothRows = [];
-        const otherRows = [];
-        if (Array.isArray(product.marketplaces)) {
-            product.marketplaces.forEach(mp => {
-                const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
-                const row = `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>` +
-                            `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
-                if (/noth/i.test(name) || /not on the high/i.test(name)) {
-                    nothRows.push(row);
-                } else if (/amazon/i.test(name)) {
-                    otherRows.push(row);
-                }
-            });
-        }
-
-        const mpSummarySection = (nothRows.length || otherRows.length) ?
-            `<div class="profit-analysis">${nothRows.join('')}${otherRows.join('')}</div>` : '';
+        const mpSummarySection = mpRows ? `<div class="profit-analysis">${mpRows}</div>` : '';
 
         const materialsListHtml = product.materials.map(m => `<div style="font-size: 0.9em; color: #666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
 
