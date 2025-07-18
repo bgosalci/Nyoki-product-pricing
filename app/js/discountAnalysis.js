@@ -43,7 +43,9 @@ const DiscountAnalysis = (function() {
         if (!container) return;
         marketplaces = loadMarketplaces();
         let html = '<button class="discount-tab" data-id="">Base</button>';
-        marketplaces.forEach(mp => { html += `<button class="discount-tab" data-id="${mp.id}">${mp.name}</button>`; });
+        marketplaces.forEach(mp => {
+            html += `<button class="discount-tab" data-id="${mp.id}">${mp.name}</button>`;
+        });
         container.innerHTML = html;
         const tabs = container.querySelectorAll('.discount-tab');
         if (!tabs.length) return;
@@ -58,6 +60,8 @@ const DiscountAnalysis = (function() {
         });
         tabs[0].classList.add('active');
         currentMarketplaceId = tabs[0].dataset.id || '';
+        renderTable();
+        filterRows();
     }
 
     function renderTable() {
@@ -102,6 +106,14 @@ const DiscountAnalysis = (function() {
         });
     }
 
+    function refresh() {
+        products = loadProducts();
+        groups = loadGroups();
+        populateFilter();
+        renderTabs();
+        filterRows();
+    }
+
     function init() {
         products = loadProducts();
         groups = loadGroups();
@@ -115,7 +127,9 @@ const DiscountAnalysis = (function() {
 
     return {
         init,
-        renderTabs
+        renderTabs,
+        refresh,
+        renderTable
     };
 })();
 
