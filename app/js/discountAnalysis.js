@@ -76,10 +76,18 @@ const DiscountAnalysis = (function() {
             const discountCols = [10,20,30,40,50].map(d => {
                 const price = p.retailPrice * (1 - d / 100);
                 let profit = price - p.totalCost;
-                if (mpData) {
+                
+                if (mp && mpData) {
                     const fee = price * (mpData.chargePercent / 100) + mpData.chargeFixed;
                     profit -= fee;
+                } else if (!mp && p.marketplaces && p.marketplaces.length > 0) {
+                    const totalFee = p.marketplaces.reduce((sum, marketplace) => {
+                        const fee = price * (marketplace.chargePercent / 100) + marketplace.chargeFixed;
+                        return sum + fee;
+                    }, 0);
+                    profit -= totalFee;
                 }
+                
                 const margin = p.totalCost ? (profit / p.totalCost * 100) : 0;
                 return `<td class="disc${d}">£${price.toFixed(2)}<br>£${profit.toFixed(2)} (${margin.toFixed(1)}%)</td>`;
             }).join('');
