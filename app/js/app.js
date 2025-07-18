@@ -7,8 +7,8 @@ function saveProduct() {
     ProductManager.saveProduct();
 }
 
-function saveGroup() {
-    ProductManager.saveGroup();
+function saveCategory() {
+    ProductManager.saveCategory();
 }
 
 function saveMarketplace() {
@@ -31,11 +31,11 @@ function handleCSVFile(event) {
 }
 
 function searchAndFilterProducts() {
-    const filterSelect = document.getElementById('filterByGroup');
+    const filterSelect = document.getElementById('filterByCategory');
     const searchInput = document.getElementById('searchInput');
-    const selectedGroupId = filterSelect.value;
+    const selectedCategoryId = filterSelect.value;
     const query = searchInput.value.trim();
-    ProductManager.renderProducts(selectedGroupId, query);
+    ProductManager.renderProducts(selectedCategoryId, query);
 }
 
 // Navigation function
@@ -60,8 +60,8 @@ function showView(viewName) {
     } else if (viewName === 'discount-analysis') {
         document.getElementById('discount-analysis-view').classList.add('active');
         document.querySelectorAll('.nav-btn')[2].classList.add('active');
-    } else if (viewName === 'manage-groups') {
-        document.getElementById('manage-groups-view').classList.add('active');
+    } else if (viewName === 'manage-categories') {
+        document.getElementById('manage-categories-view').classList.add('active');
         document.querySelectorAll('.nav-btn')[3].classList.add('active');
     } else if (viewName === 'manage-marketplaces') {
         document.getElementById('manage-marketplaces-view').classList.add('active');
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inputs.forEach(id => {
         document.getElementById(id).addEventListener('input', ProductManager.updateBreakdown);
     });
-    document.getElementById('productGroup').addEventListener('change', ProductManager.updateBreakdown);
+    document.getElementById('productCategory').addEventListener('change', ProductManager.updateBreakdown);
 
     // Initialize the app
     ProductManager.init();

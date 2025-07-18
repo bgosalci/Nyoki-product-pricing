@@ -18,9 +18,9 @@ A comprehensive web-based pricing calculator designed specifically for artisans,
 - **Flexible Pricing**: Set desired margin percentage or fixed retail price
 
 ### Organization & Categorization
-- **Product Groups**: Organize products with custom colors and descriptions
-- **VAT Management**: Group-level VAT settings with automatic calculations
-- **Search & Filter**: Find products quickly by name or group
+- **Product Categories**: Organize products with custom colors and descriptions
+- **VAT Management**: Category-level VAT settings with automatic calculations
+- **Search & Filter**: Find products quickly by name or category
 
 ### Marketplace Integration
 - **Multi-platform Support**: Configure different marketplace fee structures
@@ -64,14 +64,14 @@ cd app/ && python -m SimpleHTTPServer 8000
 1. **Add Materials**: Start by adding all materials with their costs
 2. **Enter Costs**: Fill in labor, overhead, shipping, and packaging costs
 3. **Set Pricing**: Choose either a desired margin percentage or fixed retail price
-4. **Assign Group** (optional): Organize products into categories
+4. **Assign Category** (optional): Organize products into categories
 5. **Configure Marketplaces** (optional): Set up platform-specific fees
 
-### 2. Organize with Groups
+### 2. Organize with Categories
 
-- Create product groups with custom colors for visual organization
-- Enable VAT for groups that require tax calculations
-- Filter and view products by group
+- Create product categories with custom colors for visual organization
+- Enable VAT for categories that require tax calculations
+- Filter and view products by category
 
 ### 3. Manage Marketplace Fees
 
@@ -115,7 +115,7 @@ const ProductManager = (function() {
     // Private state variables
     let products = [];
     let materials = [];
-    let groups = [];
+    let categories = [];
     
     // Private functions
     function calculateCosts() { /* ... */ }
@@ -156,7 +156,7 @@ The codebase follows a clean separation of concerns:
 {
     id: Number,
     name: String,
-    groupId: Number,
+    categoryId: Number,
     materials: Array<{name: String, cost: Number}>,
     laborCost: Number,
     overheadCost: Number,
@@ -187,14 +187,14 @@ The codebase follows a clean separation of concerns:
 ### Cost Calculation Engine
 - Automatic total cost calculation: `Materials + Labor + Overhead + Shipping + Packaging`
 - Real-time profit margin calculations
-- VAT handling for applicable product groups
+- VAT handling for applicable product categories
 - Marketplace fee deductions from base profit
 
-### Group Management
+### Category Management
 - Custom color coding for visual organization
-- Optional VAT settings per group
+- Optional VAT settings per category
 - Bulk organization of related products
-- Group-based filtering and display
+- Category-based filtering and display
 
 ### Marketplace Integration
 - Support for multiple selling platforms

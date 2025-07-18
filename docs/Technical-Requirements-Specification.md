@@ -6,7 +6,7 @@ Document Type: Technical Requirements Specification
 
 
 1. Executive Summary
-The Nyoki Product Pricing Calculator is a web-based application designed to help artisans and small businesses calculate accurate product pricing by tracking all associated costs including materials, labor, overhead, shipping, and packaging. The application provides comprehensive cost analysis, profit margin calculations, and product catalog management with group organization capabilities.
+The Nyoki Product Pricing Calculator is a web-based application designed to help artisans and small businesses calculate accurate product pricing by tracking all associated costs including materials, labor, overhead, shipping, and packaging. The application provides comprehensive cost analysis, profit margin calculations, and product catalog management with category organization capabilities.
 
 2. Functional Requirements
 2.1 Product Management
@@ -17,7 +17,7 @@ REQ-PROD-001: Users SHALL be able to create new products with the following attr
 Product name (required, text, max 255 characters)
 Product image (optional, image file, max 5MB, formats: JPG, PNG, GIF)
 CDN image link (optional, valid URL)
-Product group assignment (optional, dropdown selection)
+Product category assignment (optional, dropdown selection)
 Labor cost (decimal, £0.00 format, max £999,999.99)
 Overhead cost (decimal, £0.00 format, max £999,999.99)
 Post & shipping cost (decimal, £0.00 format, max £999,999.99)
@@ -74,29 +74,29 @@ REQ-MAT-005: Only one material SHALL be editable at a time
 REQ-MAT-006: Users SHALL be able to remove materials from products
 REQ-MAT-007: Material removal SHALL update cost calculations immediately
 
-2.3 Product Groups Management
-2.3.1 Group Creation
+2.3 Product Categories Management
+2.3.1 Category Creation
 
-REQ-GROUP-001: Users SHALL be able to create product groups with:
+REQ-GROUP-001: Users SHALL be able to create product categories with:
 
-Group name (required, text, max 255 characters, unique)
-Group description (optional, text, max 1000 characters)
-Group color (required, color picker, hex format)
+Category name (required, text, max 255 characters, unique)
+Category description (optional, text, max 1000 characters)
+Category color (required, color picker, hex format)
 
 
 
-2.3.2 Group Management
+2.3.2 Category Management
 
-REQ-GROUP-002: Users SHALL be able to edit group properties inline
-REQ-GROUP-003: Users SHALL be able to delete groups
-REQ-GROUP-004: Group deletion SHALL ungroup products but not delete them
-REQ-GROUP-005: System SHALL warn users when deleting groups containing products
+REQ-GROUP-002: Users SHALL be able to edit category properties inline
+REQ-GROUP-003: Users SHALL be able to delete categories
+REQ-GROUP-004: Category deletion SHALL uncategorize products but not delete them
+REQ-GROUP-005: System SHALL warn users when deleting categories containing products
 
-2.3.3 Group Assignment
+2.3.3 Category Assignment
 
-REQ-GROUP-006: Products SHALL be assignable to groups via dropdown selection
-REQ-GROUP-007: Products SHALL be able to exist without group assignment
-REQ-GROUP-008: Group dropdown SHALL update dynamically when groups are added/removed
+REQ-GROUP-006: Products SHALL be assignable to categories via dropdown selection
+REQ-GROUP-007: Products SHALL be able to exist without category assignment
+REQ-GROUP-008: Category dropdown SHALL update dynamically when categories are added/removed
 
 2.4 Pricing Calculations
 2.4.1 Cost Calculation
@@ -131,16 +131,16 @@ REQ-CALC-004: All calculations SHALL update in real-time as users input data
 REQ-CALC-005: Cost breakdown SHALL be visible during product creation/editing
 
 2.5 Product Filtering and Organization
-2.5.1 Group-based Display
+2.5.1 Category-based Display
 
-REQ-FILTER-001: Products SHALL be organized by groups in the display view
-REQ-FILTER-002: Each group section SHALL show group name, color, and product count
-REQ-FILTER-003: Ungrouped products SHALL be displayed in a separate section
+REQ-FILTER-001: Products SHALL be organized by categories in the display view
+REQ-FILTER-002: Each category section SHALL show category name, color, and product count
+REQ-FILTER-003: Uncategoryed products SHALL be displayed in a separate section
 
 2.5.2 Filtering Options
 
-REQ-FILTER-004: Users SHALL be able to filter products by group
-REQ-FILTER-005: "All Groups" option SHALL display all products
+REQ-FILTER-004: Users SHALL be able to filter products by category
+REQ-FILTER-005: "All Categories" option SHALL display all products
 REQ-FILTER-006: Filtering SHALL be dynamic without page reload
 
 
@@ -174,7 +174,7 @@ REQ-PERF-003: Image uploads SHALL provide visual feedback during processing
 3.2.2 Scalability
 
 REQ-PERF-004: Application SHALL handle up to 10,000 products efficiently
-REQ-PERF-005: Group filtering SHALL perform well with 100+ groups
+REQ-PERF-005: Category filtering SHALL perform well with 100+ categories
 REQ-PERF-006: Memory usage SHALL remain reasonable during extended sessions
 
 3.3 Browser Compatibility
@@ -212,7 +212,7 @@ Border radius: 8-15px for cards and buttons
 
 REQ-UI-002: Application SHALL use responsive grid layout
 REQ-UI-003: Navigation SHALL be tab-based with three sections
-REQ-UI-004: Forms SHALL be organized in logical groupings
+REQ-UI-004: Forms SHALL be organized in logical categoryings
 
 4.2 Responsive Design
 4.2.1 Mobile Compatibility
@@ -248,7 +248,7 @@ REQ-ACCESS-006: Semantic HTML SHALL be used throughout
 javascriptProduct {
   id: Number (unique, auto-increment)
   name: String (required, max 255 chars)
-  groupId: Number (optional, foreign key to Group.id)
+  categoryId: Number (optional, foreign key to Category.id)
   image: String (optional, base64 data URL)
   materials: Array<Material>
   laborCost: Number (decimal, ≥0)
@@ -265,8 +265,8 @@ javascriptMaterial {
   name: String (required, max 255 chars)
   cost: Number (decimal, ≥0)
 }
-5.1.3 Group Object
-javascriptGroup {
+5.1.3 Category Object
+javascriptCategory {
   id: Number (unique, auto-increment)
   name: String (required, max 255 chars, unique)
   description: String (optional, max 1000 chars)
@@ -278,12 +278,12 @@ javascriptGroup {
 REQ-VALID-001: All required fields SHALL be validated before saving
 REQ-VALID-002: Numeric fields SHALL accept only valid numbers
 REQ-VALID-003: Negative costs SHALL be rejected
-REQ-VALID-004: Duplicate group names SHALL be prevented
+REQ-VALID-004: Duplicate category names SHALL be prevented
 
 5.2.2 Data Integrity
 
-REQ-VALID-005: Product-group relationships SHALL be maintained
-REQ-VALID-006: Orphaned group references SHALL be handled gracefully
+REQ-VALID-005: Product-category relationships SHALL be maintained
+REQ-VALID-006: Orphaned category references SHALL be handled gracefully
 REQ-VALID-007: Data corruption SHALL be prevented through validation
 
 
@@ -428,7 +428,7 @@ Appendix A: Glossary
 Closure: JavaScript function that has access to variables in its outer scope
 Material: Raw material or component used in product creation
 Margin: Percentage of profit relative to cost
-Product Group: Category for organizing related products
+Product Category: Category for organizing related products
 SPA: Single Page Application
 
 Appendix B: Assumptions

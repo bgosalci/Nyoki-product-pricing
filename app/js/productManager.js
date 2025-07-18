@@ -2,16 +2,16 @@
 const ProductManager = (function() {
     let products = [];
     let materials = [];
-    let groups = [];
+    let categories = [];
     let marketplaces = [];
     let productCounter = 0;
-    let groupCounter = 0;
+    let categoryCounter = 0;
     let marketplaceCounter = 0;
     let isEditing = false;
     let editingProductIndex = -1;
     let editingMaterialIndex = -1;
-    let isEditingGroup = false;
-    let editingGroupIndex = -1;
+    let isEditingCategory = false;
+    let editingCategoryIndex = -1;
     let isEditingMarketplace = false;
     let editingMarketplaceIndex = -1;
 
@@ -73,62 +73,62 @@ const ProductManager = (function() {
         renderProducts();
     }
 
-    // Group storage helpers
-    function saveGroupsToStorage() {
-        localStorage.setItem('nyoki_groups', JSON.stringify(groups));
-        localStorage.setItem('nyoki_group_counter', groupCounter.toString());
+    // Category storage helpers
+    function saveCategoriesToStorage() {
+        localStorage.setItem('nyoki_categories', JSON.stringify(categories));
+        localStorage.setItem('nyoki_category_counter', categoryCounter.toString());
     }
 
-    function loadGroupsFromStorage() {
-        const savedGroups = localStorage.getItem('nyoki_groups');
-        const savedGroupCounter = localStorage.getItem('nyoki_group_counter');
-        if (savedGroups) {
-            groups = JSON.parse(savedGroups);
+    function loadCategoriesFromStorage() {
+        const savedCategories = localStorage.getItem('nyoki_categories') || localStorage.getItem('nyoki_groups');
+        const savedCategoryCounter = localStorage.getItem('nyoki_category_counter') || localStorage.getItem('nyoki_group_counter');
+        if (savedCategories) {
+            categories = JSON.parse(savedCategories);
             // Ensure VAT fields exist for older data
-            groups.forEach(g => {
+            categories.forEach(g => {
                 if (g.hasVAT === undefined) g.hasVAT = false;
                 if (g.vatPercent === undefined) g.vatPercent = 0;
             });
         }
-        if (savedGroupCounter) {
-            groupCounter = parseInt(savedGroupCounter);
+        if (savedCategoryCounter) {
+            categoryCounter = parseInt(savedCategoryCounter);
         } else {
-            groupCounter = groups.reduce((max, g) => Math.max(max, g.id || 0), 0);
+            categoryCounter = categories.reduce((max, g) => Math.max(max, g.id || 0), 0);
         }
     }
 
-    function renderGroups() {
-        const container = document.getElementById('groupsList');
-        if (!groups.length) {
-            container.innerHTML = '<p style="text-align: center; color:#999; font-style: italic;">No groups created yet</p>';
+    function renderCategories() {
+        const container = document.getElementById('categoriesList');
+        if (!categories.length) {
+            container.innerHTML = '<p style="text-align: center; color:#999; font-style: italic;">No categories created yet</p>';
             return;
         }
-        container.innerHTML = groups.map((g, idx) => {
-            if (isEditingGroup && editingGroupIndex === idx) {
+        container.innerHTML = categories.map((g, idx) => {
+            if (isEditingCategory && editingCategoryIndex === idx) {
                 return `
-                            <div class="group-item" style="border-left: 4px solid ${g.color}; padding: 8px; margin-bottom: 8px;">
-                                <input type="text" id="editGroupName_${idx}" value="${g.name}" style="width:100%; margin-bottom:5px;">
-                                <textarea id="editGroupDescription_${idx}" rows="2" style="width:100%; margin-bottom:5px;">${g.description || ''}</textarea>
-                                <input type="color" id="editGroupColor_${idx}" value="${g.color}" style="margin-bottom:5px;">
+                            <div class="category-item" style="border-left: 4px solid ${g.color}; padding: 8px; margin-bottom: 8px;">
+                                <input type="text" id="editCategoryName_${idx}" value="${g.name}" style="width:100%; margin-bottom:5px;">
+                                <textarea id="editCategoryDescription_${idx}" rows="2" style="width:100%; margin-bottom:5px;">${g.description || ''}</textarea>
+                                <input type="color" id="editCategoryColor_${idx}" value="${g.color}" style="margin-bottom:5px;">
                                 <label class="checkbox-label" style="margin-bottom:5px;">
-                                    <input type="checkbox" id="editGroupHasVAT_${idx}" ${g.hasVAT ? 'checked' : ''} onchange="document.getElementById('editGroupVATPercent_${idx}').style.display=this.checked?'block':'none';"> VAT Applicable
+                                    <input type="checkbox" id="editCategoryHasVAT_${idx}" ${g.hasVAT ? 'checked' : ''} onchange="document.getElementById('editCategoryVATPercent_${idx}').style.display=this.checked?'block':'none';"> VAT Applicable
                                 </label>
-                                <input type="number" id="editGroupVATPercent_${idx}" value="${g.vatPercent}" step="0.01" style="width:100%; margin-bottom:5px; ${g.hasVAT ? '' : 'display:none;'}" placeholder="VAT %">
+                                <input type="number" id="editCategoryVATPercent_${idx}" value="${g.vatPercent}" step="0.01" style="width:100%; margin-bottom:5px; ${g.hasVAT ? '' : 'display:none;'}" placeholder="VAT %">
                                 <div style="margin-top:5px;">
-                                    <button class="btn btn-edit" onclick="ProductManager.saveGroupEdit(${idx})">Save</button>
-                                    <button class="btn" onclick="ProductManager.cancelGroupEdit()">Cancel</button>
+                                    <button class="btn btn-edit" onclick="ProductManager.saveCategoryEdit(${idx})">Save</button>
+                                    <button class="btn" onclick="ProductManager.cancelCategoryEdit()">Cancel</button>
                                 </div>
                             </div>`;
             }
             return `
-                        <div class="group-item" style="border-left: 4px solid ${g.color}; padding: 8px; margin-bottom: 8px; display:flex; justify-content: space-between; align-items: center;">
+                        <div class="category-item" style="border-left: 4px solid ${g.color}; padding: 8px; margin-bottom: 8px; display:flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <strong>${g.name}</strong>
                                 ${g.description ? `<div style="font-size:0.9em; color:#666;">${g.description}</div>` : ''}
                             </div>
                             <div>
-                                <button class="btn btn-edit" onclick="ProductManager.editGroup(${idx})" style="margin-right:5px;">Edit</button>
-                                <button class="btn btn-danger" onclick="ProductManager.removeGroup(${idx})">Delete</button>
+                                <button class="btn btn-edit" onclick="ProductManager.editCategory(${idx})" style="margin-right:5px;">Edit</button>
+                                <button class="btn btn-danger" onclick="ProductManager.removeCategory(${idx})">Delete</button>
                             </div>
                         </div>`;
         }).join('');
@@ -167,7 +167,7 @@ const ProductManager = (function() {
         container.innerHTML = marketplaces.map((m, idx) => {
             if (isEditingMarketplace && editingMarketplaceIndex === idx) {
                 return `
-                            <div class="group-item" style="padding:8px; margin-bottom:8px;">\
+                            <div class="category-item" style="padding:8px; margin-bottom:8px;">\
                                 <input type="text" id="editMarketplaceName_${idx}" value="${m.name}" style="width:100%; margin-bottom:5px;">\
                                 <input type="number" id="editMarketplacePercent_${idx}" value="${m.chargePercent}" step="0.01" style="width:100%; margin-bottom:5px;" placeholder="% Charge">\
                                 <input type="number" id="editMarketplaceFixed_${idx}" value="${m.chargeFixed}" step="0.01" style="width:100%; margin-bottom:5px;" placeholder="Fixed Charge">\
@@ -178,7 +178,7 @@ const ProductManager = (function() {
                             </div>`;
             }
             return `
-                        <div class="group-item" style="padding:8px; margin-bottom:8px; display:flex; justify-content: space-between; align-items: center;">\
+                        <div class="category-item" style="padding:8px; margin-bottom:8px; display:flex; justify-content: space-between; align-items: center;">\
                             <div>\
                                 <strong>${m.name}</strong>\
                                 <div style="font-size:0.9em; color:#666;">${m.chargePercent}% + £${m.chargeFixed.toFixed(2)}</div>\
@@ -221,16 +221,16 @@ const ProductManager = (function() {
         });
     }
 
-    function populateGroupDropdowns() {
-        const productSelect = document.getElementById('productGroup');
-        const filterSelect = document.getElementById('filterByGroup');
+    function populateCategoryDropdowns() {
+        const productSelect = document.getElementById('productCategory');
+        const filterSelect = document.getElementById('filterByCategory');
 
-        const options = groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+        const options = categories.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
         if (productSelect) {
-            productSelect.innerHTML = '<option value="">No Group</option>' + options;
+            productSelect.innerHTML = '<option value="">No Category</option>' + options;
         }
         if (filterSelect) {
-            filterSelect.innerHTML = '<option value="">All Groups</option>' + options;
+            filterSelect.innerHTML = '<option value="">All Categories</option>' + options;
         }
     }
 
@@ -258,9 +258,9 @@ const ProductManager = (function() {
         const costs = calculateCosts();
         const marginPercent = parseFloat(document.getElementById('marginPercent').value) || 0;
         const retailPriceInput = parseFloat(document.getElementById('retailPrice').value) || 0;
-        const selectedGroupId = document.getElementById('productGroup').value;
-        const group = groups.find(g => g.id === parseInt(selectedGroupId));
-        const vatRate = group && group.hasVAT ? group.vatPercent : 0;
+        const selectedCategoryId = document.getElementById('productCategory').value;
+        const category = categories.find(g => g.id === parseInt(selectedCategoryId));
+        const vatRate = category && category.hasVAT ? category.vatPercent : 0;
 
         let finalRetailPrice;
         let basePrice;
@@ -393,12 +393,12 @@ const ProductManager = (function() {
     }
 
     // Private function to render products
-    function renderProducts(filterGroupId = '', searchQuery = '') {
+    function renderProducts(filterCategoryId = '', searchQuery = '') {
         const productsList = document.getElementById('productsList');
 
         let filteredProducts = products;
-        if (filterGroupId) {
-            filteredProducts = filteredProducts.filter(p => p.groupId === filterGroupId);
+        if (filterCategoryId) {
+            filteredProducts = filteredProducts.filter(p => p.categoryId === filterCategoryId);
         }
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
@@ -409,60 +409,60 @@ const ProductManager = (function() {
             let message = 'No products created yet';
             if (searchQuery) {
                 message = 'No matching products';
-            } else if (filterGroupId) {
-                message = 'No products in this group';
+            } else if (filterCategoryId) {
+                message = 'No products in this category';
             }
             productsList.innerHTML = `<p style="text-align: center; color: #999; font-style: italic; grid-column: 1/-1;">${message}</p>`;
             return;
         }
 
-        // Group products by groupId
-        const groupedProducts = {};
-        const ungroupedProducts = [];
+        // Categorize products by categoryId
+        const categorizedProducts = {};
+        const uncategorizedProducts = [];
 
         filteredProducts.forEach(product => {
-            if (product.groupId) {
-                if (!groupedProducts[product.groupId]) {
-                    groupedProducts[product.groupId] = [];
+            if (product.categoryId) {
+                if (!categorizedProducts[product.categoryId]) {
+                    categorizedProducts[product.categoryId] = [];
                 }
-                groupedProducts[product.groupId].push(product);
+                categorizedProducts[product.categoryId].push(product);
             } else {
-                ungroupedProducts.push(product);
+                uncategorizedProducts.push(product);
             }
         });
 
         let html = '';
 
-        // Render grouped products
-        Object.keys(groupedProducts).forEach(groupId => {
-            const group = groups.find(g => g.id === parseInt(groupId));
-            const groupProducts = groupedProducts[groupId];
+        // Render categorized products
+        Object.keys(categorizedProducts).forEach(categoryId => {
+            const category = categories.find(g => g.id === parseInt(categoryId));
+            const categoryProducts = categorizedProducts[categoryId];
 
             html += `
                         <div style="grid-column: 1/-1; margin: 20px 0 10px;">
-                            <h3 style="color: ${group ? group.color : '#6b5b73'}; border-bottom: 2px solid ${group ? group.color : '#6b5b73'}; padding-bottom: 5px;">
-                                ${group ? group.name : 'Unknown Group'} (${groupProducts.length} product${groupProducts.length !== 1 ? 's' : ''})
+                            <h3 style="color: ${category ? category.color : '#6b5b73'}; border-bottom: 2px solid ${category ? category.color : '#6b5b73'}; padding-bottom: 5px;">
+                                ${category ? category.name : 'Unknown Category'} (${categoryProducts.length} product${categoryProducts.length !== 1 ? 's' : ''})
                             </h3>
                         </div>
                     `;
 
-            groupProducts.forEach(product => {
+            categoryProducts.forEach(product => {
                 const actualIndex = products.indexOf(product);
                 html += generateProductCard(product, actualIndex);
             });
         });
 
-        // Render ungrouped products
-        if (ungroupedProducts.length > 0) {
+        // Render uncategorized products
+        if (uncategorizedProducts.length > 0) {
             html += `
                         <div style="grid-column: 1/-1; margin: 20px 0 10px;">
                             <h3 style="color: #999; border-bottom: 2px solid #999; padding-bottom: 5px;">
-                                Ungrouped Products (${ungroupedProducts.length} product${ungroupedProducts.length !== 1 ? 's' : ''})
+                                Uncategorized Products (${uncategorizedProducts.length} product${uncategorizedProducts.length !== 1 ? 's' : ''})
                             </h3>
                         </div>
                     `;
 
-            ungroupedProducts.forEach(product => {
+            uncategorizedProducts.forEach(product => {
                 const actualIndex = products.indexOf(product);
                 html += generateProductCard(product, actualIndex);
             });
@@ -661,9 +661,9 @@ const ProductManager = (function() {
             const costs = calculateCosts();
             const marginPercent = parseFloat(document.getElementById('marginPercent').value) || 0;
             const retailPriceInput = parseFloat(document.getElementById('retailPrice').value) || 0;
-            const selectedGroupId = document.getElementById('productGroup').value;
-            const group = groups.find(g => g.id === parseInt(selectedGroupId));
-            const vatRate = group && group.hasVAT ? group.vatPercent : 0;
+            const selectedCategoryId = document.getElementById('productCategory').value;
+            const category = categories.find(g => g.id === parseInt(selectedCategoryId));
+            const vatRate = category && category.hasVAT ? category.vatPercent : 0;
 
             let finalRetailPrice;
             let basePrice;
@@ -698,7 +698,7 @@ const ProductManager = (function() {
 
             const productData = {
                 name,
-                groupId: document.getElementById('productGroup').value || null,
+                categoryId: document.getElementById('productCategory').value || null,
                 marketplaces: feeDetails,
                 materials: [...materials],
                 laborCost: costs.laborCost,
@@ -779,7 +779,7 @@ const ProductManager = (function() {
 
             // Populate form with product data
             document.getElementById('productName').value = product.name;
-            document.getElementById('productGroup').value = product.groupId || '';
+            document.getElementById('productCategory').value = product.categoryId || '';
             renderMarketplaceOptions(product.marketplaces || []);
             document.getElementById('laborCost').value = product.laborCost;
             document.getElementById('overheadCost').value = product.overheadCost;
@@ -817,7 +817,7 @@ const ProductManager = (function() {
 
         clearForm: function() {
             document.getElementById('productName').value = '';
-            document.getElementById('productGroup').value = '';
+            document.getElementById('productCategory').value = '';
             renderMarketplaceOptions();
             document.getElementById('productImage').value = '';
             document.getElementById('imageLink').value = '';
@@ -865,20 +865,20 @@ const ProductManager = (function() {
 
         updateBreakdown: updateCostBreakdown,
 
-        // Group management functions
-        saveGroup: function() {
-            const name = document.getElementById('groupName').value.trim();
-            const description = document.getElementById('groupDescription').value.trim();
-            const color = document.getElementById('groupColor').value;
-            const hasVAT = document.getElementById('groupHasVAT').checked;
-            const vatPercent = hasVAT ? parseFloat(document.getElementById('groupVATPercent').value) || 0 : 0;
+        // Category management functions
+        saveCategory: function() {
+            const name = document.getElementById('categoryName').value.trim();
+            const description = document.getElementById('categoryDescription').value.trim();
+            const color = document.getElementById('categoryColor').value;
+            const hasVAT = document.getElementById('categoryHasVAT').checked;
+            const vatPercent = hasVAT ? parseFloat(document.getElementById('categoryVATPercent').value) || 0 : 0;
 
             if (!name) {
-                Popup.alert('Please enter a group name');
+                Popup.alert('Please enter a category name');
                 return;
             }
 
-            const groupData = {
+            const categoryData = {
                 name,
                 description,
                 color,
@@ -886,49 +886,49 @@ const ProductManager = (function() {
                 vatPercent
             };
 
-            if (isEditingGroup) {
-                // Update existing group
-                const existingGroup = groups[editingGroupIndex];
-                groupData.id = existingGroup.id;
-                groups[editingGroupIndex] = groupData;
-                this.cancelGroupEdit();
+            if (isEditingCategory) {
+                // Update existing category
+                const existingCategory = categories[editingCategoryIndex];
+                categoryData.id = existingCategory.id;
+                categories[editingCategoryIndex] = categoryData;
+                this.cancelCategoryEdit();
             } else {
-                // Create new group
-                groupData.id = ++groupCounter;
-                groups.push(groupData);
+                // Create new category
+                categoryData.id = ++categoryCounter;
+                categories.push(categoryData);
             }
 
-            renderGroups();
-            populateGroupDropdowns();
-            saveGroupsToStorage();
-            this.clearGroupForm();
+            renderCategories();
+            populateCategoryDropdowns();
+            saveCategoriesToStorage();
+            this.clearCategoryForm();
         },
 
-        editGroup: function(index) {
-            const group = groups[index];
-            isEditingGroup = true;
-            editingGroupIndex = index;
-            renderGroups();
+        editCategory: function(index) {
+            const category = categories[index];
+            isEditingCategory = true;
+            editingCategoryIndex = index;
+            renderCategories();
         },
 
-        saveGroupEdit: function(index) {
-            const nameInput = document.getElementById(`editGroupName_${index}`);
-            const descriptionInput = document.getElementById(`editGroupDescription_${index}`);
-            const colorInput = document.getElementById(`editGroupColor_${index}`);
-            const vatCheck = document.getElementById(`editGroupHasVAT_${index}`);
-            const vatInput = document.getElementById(`editGroupVATPercent_${index}`);
+        saveCategoryEdit: function(index) {
+            const nameInput = document.getElementById(`editCategoryName_${index}`);
+            const descriptionInput = document.getElementById(`editCategoryDescription_${index}`);
+            const colorInput = document.getElementById(`editCategoryColor_${index}`);
+            const vatCheck = document.getElementById(`editCategoryHasVAT_${index}`);
+            const vatInput = document.getElementById(`editCategoryVATPercent_${index}`);
 
             const newName = nameInput.value.trim();
             const newDescription = descriptionInput.value.trim();
             const newColor = colorInput.value;
 
             if (!newName) {
-                Popup.alert('Please enter a valid group name');
+                Popup.alert('Please enter a valid category name');
                 return;
             }
 
-            groups[index] = {
-                id: groups[index].id,
+            categories[index] = {
+                id: categories[index].id,
                 name: newName,
                 description: newDescription,
                 color: newColor,
@@ -936,52 +936,52 @@ const ProductManager = (function() {
                 vatPercent: vatCheck.checked ? parseFloat(vatInput.value) || 0 : 0
             };
 
-            isEditingGroup = false;
-            editingGroupIndex = -1;
-            renderGroups();
-            populateGroupDropdowns();
-            saveGroupsToStorage();
+            isEditingCategory = false;
+            editingCategoryIndex = -1;
+            renderCategories();
+            populateCategoryDropdowns();
+            saveCategoriesToStorage();
         },
 
-        cancelGroupEdit: function() {
-            isEditingGroup = false;
-            editingGroupIndex = -1;
-            renderGroups();
+        cancelCategoryEdit: function() {
+            isEditingCategory = false;
+            editingCategoryIndex = -1;
+            renderCategories();
         },
 
-        removeGroup: function(index) {
-            const group = groups[index];
-            const productsInGroup = products.filter(p => p.groupId === group.id).length;
+        removeCategory: function(index) {
+            const category = categories[index];
+            const productsInCategory = products.filter(p => p.categoryId === category.id).length;
 
-            let confirmMessage = `Are you sure you want to delete the group "${group.name}"?`;
-            if (productsInGroup > 0) {
-                confirmMessage += `\n\nThis will ungroup ${productsInGroup} product${productsInGroup !== 1 ? 's' : ''}, but the products will not be deleted.`;
+            let confirmMessage = `Are you sure you want to delete the category "${category.name}"?`;
+            if (productsInCategory > 0) {
+                confirmMessage += `\n\nThis will uncategorize ${productsInCategory} product${productsInCategory !== 1 ? 's' : ''}, but the products will not be deleted.`;
             }
 
             Popup.confirm(confirmMessage, () => {
-                // Remove group reference from products
+                // Remove category reference from products
                 products.forEach(product => {
-                    if (product.groupId === group.id) {
-                        product.groupId = null;
+                    if (product.categoryId === category.id) {
+                        product.categoryId = null;
                     }
                 });
 
-                groups.splice(index, 1);
-                renderGroups();
-                populateGroupDropdowns();
+                categories.splice(index, 1);
+                renderCategories();
+                populateCategoryDropdowns();
                 renderProducts();
-                saveGroupsToStorage();
+                saveCategoriesToStorage();
                 saveToLocalStorage();
             });
         },
 
-        clearGroupForm: function() {
-            document.getElementById('groupName').value = '';
-            document.getElementById('groupDescription').value = '';
-            document.getElementById('groupColor').value = '#6b5b73';
-            document.getElementById('groupHasVAT').checked = false;
-            document.getElementById('groupVATPercent').value = '';
-            document.getElementById('groupVATPercent').style.display = 'none';
+        clearCategoryForm: function() {
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+            document.getElementById('categoryColor').value = '#6b5b73';
+            document.getElementById('categoryHasVAT').checked = false;
+            document.getElementById('categoryVATPercent').value = '';
+            document.getElementById('categoryVATPercent').style.display = 'none';
         },
 
         // Marketplace management functions
@@ -1108,10 +1108,10 @@ const ProductManager = (function() {
         init: function() {
             loadMarketplacesFromStorage();
             loadFromLocalStorage();
-            loadGroupsFromStorage();
-            populateGroupDropdowns();
+            loadCategoriesFromStorage();
+            populateCategoryDropdowns();
             renderMarketplaceOptions();
-            renderGroups();
+            renderCategories();
             renderMarketplaces();
             renderProducts();
         },
@@ -1121,12 +1121,12 @@ const ProductManager = (function() {
         },
 
         exportCSV: function() {
-            const groupMap = {};
-            groups.forEach(g => { groupMap[g.id] = g.name; });
+            const categoryMap = {};
+            categories.forEach(g => { categoryMap[g.id] = g.name; });
             const header = [
                 'ID',
                 'Name',
-                'Group',
+                'Category',
                 'CDN Image Link',
                 'Retail Price',
                 'Total Cost',
@@ -1138,7 +1138,7 @@ const ProductManager = (function() {
                 'Marketplaces'
             ];
             const rows = products.map(p => {
-                const groupName = p.groupId ? (groupMap[p.groupId] || '') : '';
+                const categoryName = p.categoryId ? (categoryMap[p.categoryId] || '') : '';
                 const basePrice = p.retailPrice / (1 + (p.vatRate || 0) / 100);
                 const profit = p.baseProfit !== undefined ? p.baseProfit : basePrice - p.totalCost;
                 const margin = p.baseMargin !== undefined ? p.baseMargin : (profit / p.totalCost) * 100;
@@ -1159,7 +1159,7 @@ const ProductManager = (function() {
                 return [
                     p.id,
                     p.name,
-                    groupName,
+                    categoryName,
                     cdnLink,
                     p.retailPrice.toFixed(2),
                     p.totalCost.toFixed(2),
@@ -1197,15 +1197,15 @@ const ProductManager = (function() {
                     }
 
                     const header = lines[0].split(',').map(col => col.replace(/"/g, '').trim());
-                    const expectedColumns = ['ID', 'Name', 'Group', 'CDN Image Link', 'Retail Price', 'Total Cost', 'Profit', 'Margin %', 'Labor Cost', 'Overhead Cost', 'Materials', 'Marketplaces'];
+                    const expectedColumns = ['ID', 'Name', 'Category', 'CDN Image Link', 'Retail Price', 'Total Cost', 'Profit', 'Margin %', 'Labor Cost', 'Overhead Cost', 'Materials', 'Marketplaces'];
                     
                     if (!expectedColumns.every(col => header.includes(col))) {
                         Popup.alert('Invalid CSV format: Missing required columns');
                         return;
                     }
 
-                    const groupMap = {};
-                    groups.forEach(g => { groupMap[g.name] = g.id; });
+                    const categoryMap = {};
+                    categories.forEach(g => { categoryMap[g.name] = g.id; });
                     
                     const marketplaceMap = {};
                     marketplaces.forEach(m => { marketplaceMap[m.name] = m; });
@@ -1235,14 +1235,14 @@ const ProductManager = (function() {
                                 image: rowData['CDN Image Link'] || '',
                                 materials: [],
                                 marketplaces: [],
-                                groupId: null,
+                                categoryId: null,
                                 baseProfit: parseFloat(rowData['Profit']) || 0,
                                 baseMargin: parseFloat(rowData['Margin %']) || 0
                             };
 
-                            const groupName = rowData['Group'];
-                            if (groupName && groupMap[groupName]) {
-                                productData.groupId = groupMap[groupName];
+                            const categoryName = rowData['Category'];
+                            if (categoryName && categoryMap[categoryName]) {
+                                productData.categoryId = categoryMap[categoryName];
                             }
 
                             const materialsStr = rowData['Materials'];
@@ -1303,7 +1303,7 @@ const ProductManager = (function() {
                     productCounter = maxId;
                     saveToLocalStorage();
                     renderProducts();
-                    populateGroupDropdowns();
+                    populateCategoryDropdowns();
                     
                     if (window.DiscountAnalysis) {
                         DiscountAnalysis.refresh();
@@ -1348,8 +1348,8 @@ const ProductManager = (function() {
             return result;
         },
 
-        renderProducts: function(filterGroupId, searchQuery) {
-            renderProducts(filterGroupId, searchQuery);
+        renderProducts: function(filterCategoryId, searchQuery) {
+            renderProducts(filterCategoryId, searchQuery);
         }
     };
 })();
