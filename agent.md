@@ -275,4 +275,15 @@ container.addEventListener('click', function(e) {
 });
 ```
 
+### Discount Analysis
+When implementing marketplace fee deductions in discount analysis tables, ensure that marketplace fees are calculated and 
+deducted for each individual discount percentage column (e.g., 10%, 20%, 30%, 40%, 50%), not just applied once to the overall calculation. 
+Each discount value needs its own fee calculation based on the discounted price for that specific percentage.
+
+### Fee Based Discount Calculations
+When implementing discount calculations that involve marketplace fees and VAT, always validate with specific user-provided test cases rather than relying solely on manual calculations. Users may provide concrete examples (like £7.50 price, £2.74 cost, 30% fee, 20% VAT) that reveal calculation errors not apparent from code review alone. The discount logic may incorrectly handle the interaction between discounted prices, marketplace fees, and VAT calculations.
+
+### Base Price Discount Calculations
+When fixing discount calculations that involve marketplace fees and VAT, ensure to test both marketplace-specific tabs AND the Base tab (products without marketplace fees). The Base tab calculation logic can be different from marketplace-specific calculations and may break when VAT handling is modified.
+
 These rules ensure consistency with the existing codebase and maintain the high-quality, professional standards of the Nyoki Product Pricing Calculator.
