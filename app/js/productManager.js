@@ -752,6 +752,9 @@ const ProductManager = (function() {
                 renderProducts();
                 this.clearForm();
                 saveToLocalStorage();
+                if (window.DiscountAnalysis) {
+                    DiscountAnalysis.refresh();
+                }
 
                 // Switch to view products after saving
                 if (!isEditing) {
@@ -778,6 +781,9 @@ const ProductManager = (function() {
                 products.splice(index, 1);
                 renderProducts();
                 saveToLocalStorage();
+                if (window.DiscountAnalysis) {
+                    DiscountAnalysis.refresh();
+                }
             });
         },
 
@@ -1019,8 +1025,14 @@ const ProductManager = (function() {
 
             renderMarketplaces();
             renderMarketplaceOptions();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.renderTabs();
+            }
             saveMarketplacesToStorage();
             this.clearMarketplaceForm();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.refresh();
+            }
         },
 
         editMarketplace: function(index) {
@@ -1050,7 +1062,13 @@ const ProductManager = (function() {
             editingMarketplaceIndex = -1;
             renderMarketplaces();
             renderMarketplaceOptions();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.renderTabs();
+            }
             saveMarketplacesToStorage();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.refresh();
+            }
         },
 
         cancelMarketplaceEdit: function() {
@@ -1085,9 +1103,15 @@ const ProductManager = (function() {
             marketplaces.splice(index, 1);
             renderMarketplaces();
             renderMarketplaceOptions();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.renderTabs();
+            }
             renderProducts();
             saveMarketplacesToStorage();
             saveToLocalStorage();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.refresh();
+            }
         },
 
         clearMarketplaceForm: function() {

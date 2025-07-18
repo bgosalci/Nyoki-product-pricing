@@ -421,6 +421,28 @@
         .disc40 { background-color: #a2e0a0; }
         .disc50 { background-color: #89d889; }
 
+        .discount-tabs {
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e8ddd4;
+        }
+
+        .discount-tab {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            font-weight: bold;
+            color: #6b5b73;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .discount-tab.active {
+            background: #6b5b73;
+            color: #fff;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -645,6 +667,7 @@
         <div id="discount-analysis-view" class="view-section">
             <div class="card">
                 <h2>Discount Analysis</h2>
+                <div id="discountTabs" class="discount-tabs"></div>
                 <div class="filter-bar" style="display:flex; gap:10px; margin-bottom:15px;">
                     <input type="text" id="analysisSearch" placeholder="Search products..." style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
                     <select id="analysisCategory" style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
