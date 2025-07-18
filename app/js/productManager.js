@@ -1184,6 +1184,170 @@ const ProductManager = (function() {
             URL.revokeObjectURL(url);
         },
 
+        importCSV: function(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        Popup.alert('Invalid CSV file: No data found');
+                        return;
+                    }
+
+                    const header = lines[0].split(',').map(col => col.replace(/"/g, '').trim());
+                    const expectedColumns = ['ID', 'Name', 'Group', 'CDN Image Link', 'Retail Price', 'Total Cost', 'Profit', 'Margin %', 'Labor Cost', 'Overhead Cost', 'Materials', 'Marketplaces'];
+                    
+                    if (!expectedColumns.every(col => header.includes(col))) {
+                        Popup.alert('Invalid CSV format: Missing required columns');
+                        return;
+                    }
+
+                    const groupMap = {};
+                    groups.forEach(g => { groupMap[g.name] = g.id; });
+                    
+                    const marketplaceMap = {};
+                    marketplaces.forEach(m => { marketplaceMap[m.name] = m; });
+
+                    let importedCount = 0;
+                    let maxId = Math.max(productCounter, ...products.map(p => p.id || 0));
+
+                    for (let i = 1; i < lines.length; i++) {
+                        try {
+                            const values = ProductManager.parseCSVLine(lines[i]);
+                            if (values.length !== header.length) continue;
+
+                            const rowData = {};
+                            header.forEach((col, idx) => {
+                                rowData[col] = values[idx];
+                            });
+
+                            const productData = {
+                                id: ++maxId,
+                                name: rowData['Name'] || '',
+                                retailPrice: parseFloat(rowData['Retail Price']) || 0,
+                                totalCost: parseFloat(rowData['Total Cost']) || 0,
+                                laborCost: parseFloat(rowData['Labor Cost']) || 0,
+                                overheadCost: parseFloat(rowData['Overhead Cost']) || 0,
+                                postCost: 0,
+                                packagingCost: 0,
+                                image: rowData['CDN Image Link'] || '',
+                                materials: [],
+                                marketplaces: [],
+                                groupId: null,
+                                baseProfit: parseFloat(rowData['Profit']) || 0,
+                                baseMargin: parseFloat(rowData['Margin %']) || 0
+                            };
+
+                            const groupName = rowData['Group'];
+                            if (groupName && groupMap[groupName]) {
+                                productData.groupId = groupMap[groupName];
+                            }
+
+                            const materialsStr = rowData['Materials'];
+                            if (materialsStr) {
+                                const materialPairs = materialsStr.split(';').map(s => s.trim()).filter(s => s);
+                                materialPairs.forEach(pair => {
+                                    const [name, cost] = pair.split(':');
+                                    if (name && cost) {
+                                        productData.materials.push({
+                                            name: name.trim(),
+                                            cost: parseFloat(cost) || 0
+                                        });
+                                    }
+                                });
+                            }
+
+                            const marketplacesStr = rowData['Marketplaces'];
+                            if (marketplacesStr) {
+                                const mpPairs = marketplacesStr.split(';').map(s => s.trim()).filter(s => s);
+                                mpPairs.forEach(pair => {
+                                    const [nameAndCharges, ...details] = pair.split('|');
+                                    if (nameAndCharges) {
+                                        const [name, charges] = nameAndCharges.split(':');
+                                        if (name && charges) {
+                                            const mpName = name.trim();
+                                            const marketplace = marketplaceMap[mpName];
+                                            if (marketplace) {
+                                                const [percent, fixed] = charges.split('+');
+                                                const mpData = {
+                                                    id: marketplace.id,
+                                                    chargePercent: parseFloat(percent.replace('%', '')) || 0,
+                                                    chargeFixed: parseFloat(fixed) || 0
+                                                };
+                                                
+                                                details.forEach(detail => {
+                                                    const [key, value] = detail.split(':');
+                                                    if (key && value) {
+                                                        if (key.trim() === 'fee') mpData.fee = parseFloat(value) || 0;
+                                                        if (key.trim() === 'profit') mpData.profit = parseFloat(value) || 0;
+                                                        if (key.trim() === 'margin') mpData.margin = parseFloat(value.replace('%', '')) || 0;
+                                                    }
+                                                });
+                                                
+                                                productData.marketplaces.push(mpData);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            products.push(productData);
+                            importedCount++;
+                        } catch (rowError) {
+                            console.warn('Error parsing row', i, rowError);
+                        }
+                    }
+
+                    productCounter = maxId;
+                    saveToLocalStorage();
+                    renderProducts();
+                    populateGroupDropdowns();
+                    
+                    if (window.DiscountAnalysis) {
+                        DiscountAnalysis.refresh();
+                    }
+
+                    Popup.alert(`Successfully imported ${importedCount} products`);
+                    
+                    document.getElementById('csvFileInput').value = '';
+                    
+                } catch (error) {
+                    console.error('CSV import error:', error);
+                    Popup.alert('Error importing CSV file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        },
+
+        parseCSVLine: function(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+                
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        },
+
         renderProducts: function(filterGroupId, searchQuery) {
             renderProducts(filterGroupId, searchQuery);
         }

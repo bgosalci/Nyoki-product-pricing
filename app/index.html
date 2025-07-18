@@ -589,6 +589,8 @@
                             <option value="">All Groups</option>
                         </select>
                         <button class="btn" onclick="exportProducts()">Export CSV</button>
+                        <button class="btn btn-secondary" onclick="importProducts()">Import CSV</button>
+                        <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCSVFile(event)">
                     </div>
                 </div>
                 <div id="productsList" class="product-grid">
