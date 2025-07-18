@@ -19,6 +19,17 @@ function exportProducts() {
     ProductManager.exportCSV();
 }
 
+function importProducts() {
+    document.getElementById('csvFileInput').click();
+}
+
+function handleCSVFile(event) {
+    const file = event.target.files[0];
+    if (file) {
+        ProductManager.importCSV(file);
+    }
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByGroup');
     const searchInput = document.getElementById('searchInput');
