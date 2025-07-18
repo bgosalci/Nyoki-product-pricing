@@ -74,14 +74,19 @@ const DiscountAnalysis = (function() {
             const profitDisplay = mp ? mpData.profit : p.baseProfit;
             const marginDisplay = mp ? mpData.margin : p.baseMargin;
             const discountCols = [10,20,30,40,50].map(d => {
-                const price = p.retailPrice * (1 - d / 100);
-                let profit = price - p.totalCost;
-                if (mpData) {
-                    const fee = price * (mpData.chargePercent / 100) + mpData.chargeFixed;
+                const discountedRetailPrice = p.retailPrice * (1 - d / 100);
+                
+                const basePrice = p.vatRate ? discountedRetailPrice / (1 + p.vatRate / 100) : discountedRetailPrice;
+                
+                let profit = basePrice - p.totalCost;
+                
+                if (mp && mpData) {
+                    const fee = discountedRetailPrice * (mpData.chargePercent / 100) + mpData.chargeFixed;
                     profit -= fee;
                 }
+                
                 const margin = p.totalCost ? (profit / p.totalCost * 100) : 0;
-                return `<td class="disc${d}">£${price.toFixed(2)}<br>£${profit.toFixed(2)} (${margin.toFixed(1)}%)</td>`;
+                return `<td class="disc${d}">£${discountedRetailPrice.toFixed(2)}<br>£${profit.toFixed(2)} (${margin.toFixed(1)}%)</td>`;
             }).join('');
             return `<tr data-name="${p.name.toLowerCase()}" data-group="${p.groupId || ''}">` +
                    `<td>${p.name}</td>` +
