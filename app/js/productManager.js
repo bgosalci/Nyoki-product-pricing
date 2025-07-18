@@ -1075,27 +1075,38 @@ const ProductManager = (function() {
 
         removeMarketplace: function(index) {
             const mp = marketplaces[index];
-            // Remove marketplace reference from products
-            products.forEach(p => {
-                if (Array.isArray(p.marketplaces)) {
-                    const i = p.marketplaces.findIndex(m => m.id === mp.id);
-                    if (i !== -1) {
-                        p.marketplaces.splice(i, 1);
+            const productsUsing = products.filter(p => {
+                return Array.isArray(p.marketplaces) && p.marketplaces.some(m => m.id === mp.id);
+            }).length;
+
+            let confirmMessage = `Are you sure you want to delete the marketplace "${mp.name}"?`;
+            if (productsUsing > 0) {
+                confirmMessage += `\n\nThis will remove this marketplace from ${productsUsing} product${productsUsing !== 1 ? 's' : ''}.`;
+            }
+
+            Popup.confirm(confirmMessage, () => {
+                // Remove marketplace reference from products
+                products.forEach(p => {
+                    if (Array.isArray(p.marketplaces)) {
+                        const i = p.marketplaces.findIndex(m => m.id === mp.id);
+                        if (i !== -1) {
+                            p.marketplaces.splice(i, 1);
+                        }
                     }
+                });
+                marketplaces.splice(index, 1);
+                renderMarketplaces();
+                renderMarketplaceOptions();
+                if (window.DiscountAnalysis) {
+                    DiscountAnalysis.renderTabs();
+                }
+                renderProducts();
+                saveMarketplacesToStorage();
+                saveToLocalStorage();
+                if (window.DiscountAnalysis) {
+                    DiscountAnalysis.refresh();
                 }
             });
-            marketplaces.splice(index, 1);
-            renderMarketplaces();
-            renderMarketplaceOptions();
-            if (window.DiscountAnalysis) {
-                DiscountAnalysis.renderTabs();
-            }
-            renderProducts();
-            saveMarketplacesToStorage();
-            saveToLocalStorage();
-            if (window.DiscountAnalysis) {
-                DiscountAnalysis.refresh();
-            }
         },
 
         clearMarketplaceForm: function() {
