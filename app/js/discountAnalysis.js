@@ -83,12 +83,6 @@ const DiscountAnalysis = (function() {
                 if (mp && mpData) {
                     const fee = discountedRetailPrice * (mpData.chargePercent / 100) + mpData.chargeFixed;
                     profit -= fee;
-                } else if (!mp && p.marketplaces && p.marketplaces.length > 0) {
-                    const totalFee = p.marketplaces.reduce((sum, marketplace) => {
-                        const fee = discountedRetailPrice * (marketplace.chargePercent / 100) + marketplace.chargeFixed;
-                        return sum + fee;
-                    }, 0);
-                    profit -= totalFee;
                 }
                 
                 const margin = p.totalCost ? (profit / p.totalCost * 100) : 0;
