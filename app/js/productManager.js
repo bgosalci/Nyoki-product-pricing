@@ -61,6 +61,10 @@ const ProductManager = (function() {
                     });
                 }
 
+                if (p.stockCount === undefined) {
+                    p.stockCount = 0;
+                }
+
                 delete p.marketplaceId;
                 delete p.marketplaceFee;
                 delete p.profit;
@@ -493,6 +497,10 @@ const ProductManager = (function() {
                                     <span>Total Cost:</span>
                                     <span>£${product.totalCost.toFixed(2)}</span>
                                 </div>
+                                <div class="profit-row">
+                                    <span>Stock:</span>
+                                    <span>${product.stockCount || 0}</span>
+                                </div>
                                 ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
                                 <div class="profit-row">
                                     <span>Retail Price:</span>
@@ -533,6 +541,10 @@ const ProductManager = (function() {
                                 <div class="profit-row total">
                                     <span>Total Cost:</span>
                                     <span>£${product.totalCost.toFixed(2)}</span>
+                                </div>
+                                <div class="profit-row">
+                                    <span>Stock:</span>
+                                    <span>${product.stockCount || 0}</span>
                                 </div>
                                 ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
                                <div class="profit-row">
@@ -705,6 +717,7 @@ const ProductManager = (function() {
                 overheadCost: costs.overheadCost,
                 postCost: costs.postCost,
                 packagingCost: costs.packagingCost,
+                stockCount: parseInt(document.getElementById('stockCount').value) || 0,
                 totalCost: costs.totalCost,
                 retailPrice: finalRetailPrice,
                 vatRate,
@@ -785,6 +798,7 @@ const ProductManager = (function() {
             document.getElementById('overheadCost').value = product.overheadCost;
             document.getElementById('postCost').value = product.postCost || 0;
             document.getElementById('packagingCost').value = product.packagingCost || 0;
+            document.getElementById('stockCount').value = product.stockCount || 0;
             document.getElementById('retailPrice').value = product.retailPrice;
             document.getElementById('productImage').value = '';
             document.getElementById('imageLink').value = product.image && !product.image.startsWith('data:') ? product.image : '';
@@ -825,6 +839,7 @@ const ProductManager = (function() {
             document.getElementById('overheadCost').value = '';
             document.getElementById('postCost').value = '';
             document.getElementById('packagingCost').value = '';
+            document.getElementById('stockCount').value = '';
             document.getElementById('marginPercent').value = '';
             document.getElementById('retailPrice').value = '';
             materials = [];
