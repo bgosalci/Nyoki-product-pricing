@@ -45,6 +45,21 @@ function handleCategoryCSVFile(event) {
     }
 }
 
+function exportMarketplaces() {
+    ProductManager.exportMarketplacesCSV();
+}
+
+function importMarketplaces() {
+    document.getElementById('marketplaceCSVInput').click();
+}
+
+function handleMarketplaceCSVFile(event) {
+    const file = event.target.files[0];
+    if (file) {
+        ProductManager.importMarketplacesCSV(file);
+    }
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByCategory');
     const searchInput = document.getElementById('searchInput');

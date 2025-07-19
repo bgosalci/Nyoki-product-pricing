@@ -1083,6 +1083,91 @@ const ProductManager = (function() {
             reader.readAsText(file);
         },
 
+        exportMarketplacesCSV: function() {
+            const header = ['ID', 'Name', 'Charge Percent', 'Charge Fixed'];
+            const rows = marketplaces.map(m => [
+                m.id,
+                m.name,
+                m.chargePercent !== undefined ? m.chargePercent.toFixed(2) : '0.00',
+                m.chargeFixed !== undefined ? m.chargeFixed.toFixed(2) : '0.00'
+            ]);
+            let csv = header.join(',') + '\n';
+            csv += rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'marketplaces.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        },
+
+        importMarketplacesCSV: function(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n').filter(line => line.trim());
+
+                    if (lines.length < 2) {
+                        Popup.alert('Invalid CSV file: No data found');
+                        return;
+                    }
+
+                    const header = lines[0].split(',').map(col => col.replace(/"/g, '').trim());
+                    const expected = ['ID', 'Name', 'Charge Percent', 'Charge Fixed'];
+
+                    if (!expected.every(col => header.includes(col))) {
+                        Popup.alert('Invalid CSV format: Missing required columns');
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    let maxId = Math.max(marketplaceCounter, ...marketplaces.map(m => m.id || 0));
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = ProductManager.parseCSVLine(lines[i]);
+                        if (values.length !== header.length) continue;
+
+                        const rowData = {};
+                        header.forEach((col, idx) => {
+                            rowData[col] = values[idx];
+                        });
+
+                        const mpData = {
+                            id: ++maxId,
+                            name: rowData['Name'] || '',
+                            chargePercent: parseFloat(rowData['Charge Percent']) || 0,
+                            chargeFixed: parseFloat(rowData['Charge Fixed']) || 0
+                        };
+
+                        marketplaces.push(mpData);
+                        importedCount++;
+                    }
+
+                    marketplaceCounter = maxId;
+                    renderMarketplaces();
+                    renderMarketplaceOptions();
+                    if (window.DiscountAnalysis) {
+                        DiscountAnalysis.renderTabs();
+                        DiscountAnalysis.refresh();
+                    }
+                    saveMarketplacesToStorage();
+                    saveToLocalStorage();
+
+                    Popup.alert(`Successfully imported ${importedCount} marketplaces`);
+
+                    document.getElementById('marketplaceCSVInput').value = '';
+                } catch (error) {
+                    console.error('CSV import error:', error);
+                    Popup.alert('Error importing CSV file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        },
+
         // Marketplace management functions
         saveMarketplace: function() {
             const name = document.getElementById('marketplaceName').value.trim();
