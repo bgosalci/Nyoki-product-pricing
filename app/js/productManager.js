@@ -12,6 +12,8 @@ const ProductManager = (function() {
     let editingMaterialIndex = -1;
     let isEditingCategory = false;
     let editingCategoryIndex = -1;
+    let categoryMaterials = [];
+    let editingCategoryMaterialIndex = -1;
     let isEditingMarketplace = false;
     let editingMarketplaceIndex = -1;
 
@@ -88,10 +90,11 @@ const ProductManager = (function() {
         const savedCategoryCounter = localStorage.getItem('nyoki_category_counter') || localStorage.getItem('nyoki_group_counter');
         if (savedCategories) {
             categories = JSON.parse(savedCategories);
-            // Ensure VAT fields exist for older data
+            // Ensure VAT and materials fields exist for older data
             categories.forEach(g => {
                 if (g.hasVAT === undefined) g.hasVAT = false;
                 if (g.vatPercent === undefined) g.vatPercent = 0;
+                if (!Array.isArray(g.materials)) g.materials = [];
             });
         }
         if (savedCategoryCounter) {
@@ -118,6 +121,11 @@ const ProductManager = (function() {
                                     <input type="checkbox" id="editCategoryHasVAT_${idx}" ${g.hasVAT ? 'checked' : ''} onchange="document.getElementById('editCategoryVATPercent_${idx}').style.display=this.checked?'block':'none';"> VAT Applicable
                                 </label>
                                 <input type="number" id="editCategoryVATPercent_${idx}" value="${g.vatPercent}" step="0.01" style="width:100%; margin-bottom:5px; ${g.hasVAT ? '' : 'display:none;'}" placeholder="VAT %">
+                                <h4 style="margin:10px 0 5px;">Materials</h4>
+                                <input type="text" id="categoryMaterialName" placeholder="Material Name" style="width:100%; margin-bottom:5px;">
+                                <input type="number" id="categoryMaterialCost" step="0.01" placeholder="0.00" style="width:100%; margin-bottom:5px;">
+                                <button class="btn btn-secondary" onclick="ProductManager.addCategoryMaterial()" style="margin-bottom:10px;">Add Material</button>
+                                <div id="categoryMaterialsList" style="margin-bottom:10px;"></div>
                                 <div style="margin-top:5px;">
                                     <button class="btn btn-edit" onclick="ProductManager.saveCategoryEdit(${idx})">Save</button>
                                     <button class="btn" onclick="ProductManager.cancelCategoryEdit()">Cancel</button>
@@ -396,6 +404,41 @@ const ProductManager = (function() {
         updateCostBreakdown();
     }
 
+    // Render materials list for category form
+    function renderCategoryMaterials() {
+        const listEl = document.getElementById('categoryMaterialsList');
+        if (!listEl) return;
+        listEl.innerHTML = categoryMaterials.map((m, idx) => {
+            if (editingCategoryMaterialIndex === idx) {
+                return `
+                            <div class="material-item" style="border-left-color:#7ba05b;">
+                                <div class="material-header">
+                                    <div style="flex:1;">
+                                        <input type="text" id="editCategoryMaterialName_${idx}" value="${m.name}" style="width:100%; margin-bottom:8px; padding:8px; border:2px solid #7ba05b; border-radius:4px;">
+                                        <input type="number" id="editCategoryMaterialCost_${idx}" value="${m.cost}" step="0.01" style="width:100%; padding:8px; border:2px solid #7ba05b; border-radius:4px;">
+                                    </div>
+                                </div>
+                                <div style="margin-top:10px;">
+                                    <button class="btn btn-edit" onclick="ProductManager.saveCategoryMaterialEdit(${idx})" style="margin-right:5px;">Save</button>
+                                    <button class="btn" onclick="ProductManager.cancelCategoryMaterialEdit()" style="margin-right:5px;">Cancel</button>
+                                    <button class="btn btn-danger" onclick="ProductManager.removeCategoryMaterial(${idx})">Remove</button>
+                                </div>
+                            </div>`;
+            }
+            return `
+                        <div class="material-item">
+                            <div class="material-header">
+                                <span><strong>${m.name}</strong></span>
+                                <span class="material-cost">£${m.cost.toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <button class="btn btn-edit" onclick="ProductManager.editCategoryMaterial(${idx})" style="margin-right:5px;">Edit</button>
+                                <button class="btn btn-danger" onclick="ProductManager.removeCategoryMaterial(${idx})">Remove</button>
+                            </div>
+                        </div>`;
+        }).join('');
+    }
+
     // Private function to render products
     function renderProducts(filterCategoryId = '', searchQuery = '') {
         const productsList = document.getElementById('productsList');
@@ -604,7 +647,7 @@ const ProductManager = (function() {
                 return;
             }
 
-            materials.push({ name, cost });
+            materials.push({ name, cost, fromCategory: false });
             document.getElementById('materialName').value = '';
             document.getElementById('materialCost').value = '';
             renderMaterials();
@@ -640,10 +683,10 @@ const ProductManager = (function() {
                 return;
             }
 
-            materials[index] = {
+            materials[index] = Object.assign({}, materials[index], {
                 name: newName,
                 cost: newCost
-            };
+            });
 
             editingMaterialIndex = -1;
             renderMaterials();
@@ -652,6 +695,69 @@ const ProductManager = (function() {
         cancelMaterialEdit: function() {
             editingMaterialIndex = -1;
             renderMaterials();
+        },
+
+        handleCategoryChange: function() {
+            const selectedId = document.getElementById('productCategory').value;
+            const category = categories.find(c => c.id === parseInt(selectedId));
+            materials = materials.filter(m => !m.fromCategory);
+            if (category && Array.isArray(category.materials)) {
+                const catMats = category.materials.map(m => ({ name: m.name, cost: m.cost, fromCategory: true }));
+                materials = catMats.concat(materials);
+            }
+            renderMaterials();
+        },
+
+        addCategoryMaterial: function() {
+            const name = document.getElementById('categoryMaterialName').value.trim();
+            const cost = parseFloat(document.getElementById('categoryMaterialCost').value);
+
+            if (!name || isNaN(cost) || cost < 0) {
+                Popup.alert('Please enter valid material name and cost');
+                return;
+            }
+
+            categoryMaterials.push({ name, cost });
+            document.getElementById('categoryMaterialName').value = '';
+            document.getElementById('categoryMaterialCost').value = '';
+            renderCategoryMaterials();
+        },
+
+        removeCategoryMaterial: function(index) {
+            if (editingCategoryMaterialIndex === index) {
+                editingCategoryMaterialIndex = -1;
+            } else if (editingCategoryMaterialIndex > index) {
+                editingCategoryMaterialIndex--;
+            }
+            categoryMaterials.splice(index, 1);
+            renderCategoryMaterials();
+        },
+
+        editCategoryMaterial: function(index) {
+            editingCategoryMaterialIndex = index;
+            renderCategoryMaterials();
+        },
+
+        saveCategoryMaterialEdit: function(index) {
+            const nameInput = document.getElementById(`editCategoryMaterialName_${index}`);
+            const costInput = document.getElementById(`editCategoryMaterialCost_${index}`);
+
+            const newName = nameInput.value.trim();
+            const newCost = parseFloat(costInput.value);
+
+            if (!newName || isNaN(newCost) || newCost < 0) {
+                Popup.alert('Please enter valid material name and cost');
+                return;
+            }
+
+            categoryMaterials[index] = { name: newName, cost: newCost };
+            editingCategoryMaterialIndex = -1;
+            renderCategoryMaterials();
+        },
+
+        cancelCategoryMaterialEdit: function() {
+            editingCategoryMaterialIndex = -1;
+            renderCategoryMaterials();
         },
 
         saveProduct: function() {
@@ -902,7 +1008,8 @@ const ProductManager = (function() {
                 description,
                 color,
                 hasVAT,
-                vatPercent
+                vatPercent,
+                materials: categoryMaterials.map(m => ({ name: m.name, cost: m.cost }))
             };
 
             if (isEditingCategory) {
@@ -921,13 +1028,18 @@ const ProductManager = (function() {
             populateCategoryDropdowns();
             saveCategoriesToStorage();
             this.clearCategoryForm();
+            categoryMaterials = [];
+            editingCategoryMaterialIndex = -1;
         },
 
         editCategory: function(index) {
             const category = categories[index];
             isEditingCategory = true;
             editingCategoryIndex = index;
+            categoryMaterials = category.materials ? category.materials.map(m => ({ name: m.name, cost: m.cost })) : [];
+            editingCategoryMaterialIndex = -1;
             renderCategories();
+            renderCategoryMaterials();
         },
 
         saveCategoryEdit: function(index) {
@@ -952,7 +1064,8 @@ const ProductManager = (function() {
                 description: newDescription,
                 color: newColor,
                 hasVAT: vatCheck.checked,
-                vatPercent: vatCheck.checked ? parseFloat(vatInput.value) || 0 : 0
+                vatPercent: vatCheck.checked ? parseFloat(vatInput.value) || 0 : 0,
+                materials: categoryMaterials.map(m => ({ name: m.name, cost: m.cost }))
             };
 
             isEditingCategory = false;
@@ -960,12 +1073,17 @@ const ProductManager = (function() {
             renderCategories();
             populateCategoryDropdowns();
             saveCategoriesToStorage();
+            categoryMaterials = [];
+            editingCategoryMaterialIndex = -1;
         },
 
         cancelCategoryEdit: function() {
             isEditingCategory = false;
             editingCategoryIndex = -1;
+            categoryMaterials = [];
+            editingCategoryMaterialIndex = -1;
             renderCategories();
+            renderCategoryMaterials();
         },
 
         removeCategory: function(index) {
@@ -1001,6 +1119,9 @@ const ProductManager = (function() {
             document.getElementById('categoryHasVAT').checked = false;
             document.getElementById('categoryVATPercent').value = '';
             document.getElementById('categoryVATPercent').style.display = 'none';
+            categoryMaterials = [];
+            editingCategoryMaterialIndex = -1;
+            renderCategoryMaterials();
         },
 
         exportCategoriesCSV: function() {
@@ -1311,6 +1432,7 @@ const ProductManager = (function() {
             populateCategoryDropdowns();
             renderMarketplaceOptions();
             renderCategories();
+            renderCategoryMaterials();
             renderMarketplaces();
             renderProducts();
         },
