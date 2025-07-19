@@ -537,6 +537,26 @@
             color: #fff;
         }
 
+        .manage-stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .manage-stock-table th,
+        .manage-stock-table td {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .manage-stock-table .stock-thumb {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
         #discount-analysis-view .filter-bar {
             top: 40px;
         }
@@ -576,6 +596,7 @@
                 <button class="nav-btn active" onclick="showView('add-edit')">Add/Edit Product</button>
                 <button class="nav-btn" onclick="showView('view-products')">View Products</button>
                 <button class="nav-btn" onclick="showView('discount-analysis')">Discount Analysis</button>
+                <button class="nav-btn" onclick="showView('manage-stock')">Manage Stock</button>
                 <button class="nav-btn" onclick="showView('manage-categories')">Manage Categories</button>
                 <button class="nav-btn" onclick="showView('manage-marketplaces')">Manage Marketplaces</button>
                 <button class="nav-btn" onclick="showView('post-packaging')">Post &amp; Packaging</button>
@@ -844,12 +865,31 @@
                 </table>
             </div>
         </div>
+
+        <!-- Manage Stock View -->
+        <div id="manage-stock-view" class="view-section">
+            <div class="card">
+                <h2>Manage Stock</h2>
+                <table class="manage-stock-table">
+                    <thead>
+                        <tr>
+                            <th>Thumbnail</th>
+                            <th>Product</th>
+                            <th>Stock Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manageStockBody"></tbody>
+                </table>
+                <button class="btn" style="margin-top:15px;" onclick="ManageStock.save()">Save Changes</button>
+            </div>
+        </div>
     </div>
 
     <script src="js/popup.js"></script>
     <script src="js/productManager.js"></script>
     <script src="js/discountAnalysis.js"></script>
     <script src="js/postPackaging.js"></script>
+    <script src="js/manageStock.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

@@ -1707,6 +1707,21 @@ const ProductManager = (function() {
             reader.readAsText(file);
         },
 
+        updateStockCounts: function(updates) {
+            if (!Array.isArray(updates)) return;
+            updates.forEach(u => {
+                const prod = products.find(p => p.id === u.id);
+                if (prod) {
+                    prod.stockCount = u.stockCount;
+                }
+            });
+            saveToLocalStorage();
+            renderProducts();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.refresh();
+            }
+        },
+
         parseCSVLine: function(line) {
             const result = [];
             let current = '';
