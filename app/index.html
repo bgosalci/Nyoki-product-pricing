@@ -528,7 +528,7 @@
 
                     <div class="form-group">
                         <label for="productCategory">Product Category</label>
-                        <select id="productCategory">
+                        <select id="productCategory" onchange="ProductManager.handleCategoryChange()">
                             <option value="">No Category</option>
                         </select>
                     </div>
@@ -661,6 +661,19 @@
                         <label class="checkbox-label"><input type="checkbox" id="categoryHasVAT" onchange="document.getElementById('categoryVATPercent').style.display=this.checked?'block':'none';"> Items in this category have VAT</label>
                         <input type="number" id="categoryVATPercent" placeholder="VAT %" step="0.01" style="display:none; margin-top:5px;">
                     </div>
+
+                    <h3 style="color:#6b5b73; margin:20px 0 15px;">Materials</h3>
+                    <div class="form-group">
+                        <label for="categoryMaterialName">Material Name</label>
+                        <input type="text" id="categoryMaterialName" placeholder="e.g., Cotton fabric">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryMaterialCost">Material Cost (£)</label>
+                        <input type="number" id="categoryMaterialCost" step="0.01" placeholder="0.00">
+                    </div>
+                    <button class="btn btn-secondary" onclick="ProductManager.addCategoryMaterial()">Add Material</button>
+                    <div id="categoryMaterialsList"></div>
 
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
                         <button class="btn" onclick="saveCategory()">Save Category</button>
