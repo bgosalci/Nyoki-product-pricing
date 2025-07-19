@@ -68,7 +68,7 @@ const DiscountAnalysis = (function() {
         const tbody = document.getElementById('discountTableBody');
         if (!tbody) return;
         const mp = marketplaces.find(m => String(m.id) === String(currentMarketplaceId));
-        const rows = products.map(p => {
+        const rows = products.map((p, idx) => {
             const mpData = mp ? (p.marketplaces || []).find(m => m.id === mp.id) : null;
             if (mp && !mpData) return '';
             const profitDisplay = mp ? mpData.profit : p.baseProfit;
@@ -88,8 +88,9 @@ const DiscountAnalysis = (function() {
                 const margin = p.totalCost ? (profit / p.totalCost * 100) : 0;
                 return `<td class="disc${d}">£${discountedRetailPrice.toFixed(2)}<br>£${profit.toFixed(2)} (${margin.toFixed(1)}%)</td>`;
             }).join('');
-            return `<tr data-name="${p.name.toLowerCase()}" data-category="${p.categoryId || ''}">` +
+            return `<tr data-index="${idx}" data-name="${p.name.toLowerCase()}" data-category="${p.categoryId || ''}">` +
                    `<td>${p.name}</td>` +
+                   `<td><button class="btn btn-secondary btn-view" data-index="${idx}">View</button></td>` +
                    `<td>£${p.retailPrice.toFixed(2)}</td>` +
                    `<td>£${profitDisplay.toFixed(2)}</td>` +
                    `<td>${marginDisplay.toFixed(1)}%</td>` +
@@ -97,6 +98,53 @@ const DiscountAnalysis = (function() {
                    `</tr>`;
         }).join('');
         tbody.innerHTML = rows;
+
+        tbody.querySelectorAll('.btn-view').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                viewProduct(index);
+            });
+        });
+    }
+
+    function generatePopupHtml(product) {
+        const mpRows = Array.isArray(product.marketplaces) ? product.marketplaces.map(mp => {
+            const name = (marketplaces.find(m => m.id === mp.id) || {}).name || 'Marketplace';
+            return `<div class="profit-row"><span>${name} Fee:</span><span>£${mp.fee.toFixed(2)}</span></div>` +
+                   `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
+        }).join('') : '';
+
+        const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top:15px;">${mpRows}</div>` : '';
+
+        const materialsListHtml = product.materials.map(m => `<div style="font-size:0.9em; color:#666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
+
+        const vatAmount = product.vatRate ? (product.retailPrice - (product.retailPrice / (1 + product.vatRate / 100))) : 0;
+        const baseProfit = product.baseProfit !== undefined ? product.baseProfit : ((product.retailPrice / (1 + (product.vatRate || 0) / 100)) - product.totalCost);
+        const baseMargin = product.baseMargin !== undefined ? product.baseMargin : (baseProfit / product.totalCost * 100);
+
+        return `
+            <h3 style="margin-bottom:10px;">${product.name}</h3>
+            ${product.image ? `<div style="margin-bottom:10px;"><img src="${product.image}" alt="${product.name}" style="max-width:100%; border-radius:8px;"></div>` : ''}
+            <div class="profit-analysis">
+                <div class="profit-row total"><span>Total Cost:</span><span>£${product.totalCost.toFixed(2)}</span></div>
+                <div class="profit-row"><span>Stock:</span><span>${product.stockCount || 0}</span></div>
+                ${product.vatRate ? `<div class="profit-row"><span>VAT (${product.vatRate}%):</span><span>£${vatAmount.toFixed(2)}</span></div>` : ''}
+                <div class="profit-row"><span>Retail Price:</span><span>£${product.retailPrice.toFixed(2)}</span></div>
+                <div class="profit-row total"><span>Profit:</span><span>£${baseProfit.toFixed(2)}</span></div>
+                <div class="profit-row total"><span>Margin:</span><span>${baseMargin.toFixed(1)}%</span></div>
+            </div>
+            <div style="margin-top:15px;">
+                <div><strong>Materials:</strong></div>
+                ${materialsListHtml}
+            </div>
+            ${mpSection}`;
+    }
+
+    function viewProduct(index) {
+        const product = products[index];
+        if (!product) return;
+        const html = generatePopupHtml(product);
+        Popup.custom(html, { closeText: 'Close' });
     }
 
     function filterRows() {
