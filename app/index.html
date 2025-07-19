@@ -430,6 +430,39 @@
             text-align: center;
         }
 
+        .discount-table .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .discount-table .table-thumb {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .discount-table .product-name[data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+
+        .discount-table .product-name[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #6b5b73;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            z-index: 10;
+        }
+
         .discount-table tbody tr:hover td {
             background-color: #f9f7f4;
         }

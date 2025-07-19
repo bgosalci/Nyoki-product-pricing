@@ -88,8 +88,11 @@ const DiscountAnalysis = (function() {
                 const margin = p.totalCost ? (profit / p.totalCost * 100) : 0;
                 return `<td class="disc${d}">£${discountedRetailPrice.toFixed(2)}<br>£${profit.toFixed(2)} (${margin.toFixed(1)}%)</td>`;
             }).join('');
+            const truncatedName = p.name.length > 50 ? p.name.slice(0, 50) + '…' : p.name;
+            const thumb = p.image ? `<img src="${p.image}" alt="${p.name}" class="table-thumb">` : '';
+            const nameCell = `<td class="product-cell"><span>${thumb}</span><span class="product-name" data-tooltip="${p.name}">${truncatedName}</span></td>`;
             return `<tr data-index="${idx}" data-name="${p.name.toLowerCase()}" data-category="${p.categoryId || ''}">` +
-                   `<td>${p.name}</td>` +
+                   nameCell +
                    `<td><button class="btn btn-secondary btn-view" data-index="${idx}">View</button></td>` +
                    `<td>£${p.retailPrice.toFixed(2)}</td>` +
                    `<td>£${profitDisplay.toFixed(2)}</td>` +
