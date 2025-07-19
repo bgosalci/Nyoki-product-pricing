@@ -550,6 +550,10 @@
             text-align: center;
         }
 
+        .manage-stock-table tbody tr:hover td {
+            background-color: #f9f7f4;
+        }
+
         .manage-stock-table .stock-thumb {
             width: 80px;
             height: 80px;
@@ -871,6 +875,12 @@
         <div id="manage-stock-view" class="view-section">
             <div class="card">
                 <h2>Manage Stock</h2>
+                <div class="filter-bar" style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="stockSearch" placeholder="Search products..." style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                    <select id="stockCategory" style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
                 <table class="manage-stock-table">
                     <thead>
                         <tr>
