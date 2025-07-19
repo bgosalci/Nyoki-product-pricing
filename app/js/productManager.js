@@ -122,10 +122,10 @@ const ProductManager = (function() {
                                 </label>
                                 <input type="number" id="editCategoryVATPercent_${idx}" value="${g.vatPercent}" step="0.01" style="width:100%; margin-bottom:5px; ${g.hasVAT ? '' : 'display:none;'}" placeholder="VAT %">
                                 <h4 style="margin:10px 0 5px;">Materials</h4>
-                                <input type="text" id="categoryMaterialName" placeholder="Material Name" style="width:100%; margin-bottom:5px;">
-                                <input type="number" id="categoryMaterialCost" step="0.01" placeholder="0.00" style="width:100%; margin-bottom:5px;">
+                                <input type="text" id="editCategoryMaterialName" placeholder="Material Name" style="width:100%; margin-bottom:5px;">
+                                <input type="number" id="editCategoryMaterialCost" step="0.01" placeholder="0.00" style="width:100%; margin-bottom:5px;">
                                 <button class="btn btn-secondary" onclick="ProductManager.addCategoryMaterial()" style="margin-bottom:10px;">Add Material</button>
-                                <div id="categoryMaterialsList" style="margin-bottom:10px;"></div>
+                                <div id="editCategoryMaterialsList" style="margin-bottom:10px;"></div>
                                 <div style="margin-top:5px;">
                                     <button class="btn btn-edit" onclick="ProductManager.saveCategoryEdit(${idx})">Save</button>
                                     <button class="btn" onclick="ProductManager.cancelCategoryEdit()">Cancel</button>
@@ -406,7 +406,8 @@ const ProductManager = (function() {
 
     // Render materials list for category form
     function renderCategoryMaterials() {
-        const listEl = document.getElementById('categoryMaterialsList');
+        const listId = isEditingCategory ? 'editCategoryMaterialsList' : 'categoryMaterialsList';
+        const listEl = document.getElementById(listId);
         if (!listEl) return;
         listEl.innerHTML = categoryMaterials.map((m, idx) => {
             if (editingCategoryMaterialIndex === idx) {
@@ -709,8 +710,12 @@ const ProductManager = (function() {
         },
 
         addCategoryMaterial: function() {
-            const name = document.getElementById('categoryMaterialName').value.trim();
-            const cost = parseFloat(document.getElementById('categoryMaterialCost').value);
+            const nameId = isEditingCategory ? 'editCategoryMaterialName' : 'categoryMaterialName';
+            const costId = isEditingCategory ? 'editCategoryMaterialCost' : 'categoryMaterialCost';
+            const nameEl = document.getElementById(nameId);
+            const costEl = document.getElementById(costId);
+            const name = nameEl ? nameEl.value.trim() : '';
+            const cost = costEl ? parseFloat(costEl.value) : NaN;
 
             if (!name || isNaN(cost) || cost < 0) {
                 Popup.alert('Please enter valid material name and cost');
@@ -718,8 +723,8 @@ const ProductManager = (function() {
             }
 
             categoryMaterials.push({ name, cost });
-            document.getElementById('categoryMaterialName').value = '';
-            document.getElementById('categoryMaterialCost').value = '';
+            if (nameEl) nameEl.value = '';
+            if (costEl) costEl.value = '';
             renderCategoryMaterials();
         },
 
