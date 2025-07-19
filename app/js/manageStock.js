@@ -1,5 +1,13 @@
 const ManageStock = (function() {
     let products = [];
+    let categories = [];
+    let searchQuery = '';
+    let filterCategoryId = '';
+
+    function loadCategories() {
+        const data = localStorage.getItem('nyoki_categories') || localStorage.getItem('nyoki_groups');
+        categories = data ? JSON.parse(data) : [];
+    }
 
     function loadProducts() {
         const data = localStorage.getItem('nyoki_products');
@@ -10,14 +18,25 @@ const ManageStock = (function() {
         loadProducts();
         const tbody = document.getElementById('manageStockBody');
         if (!tbody) return;
-        if (!products.length) {
+
+        let filtered = products;
+        if (filterCategoryId) {
+            filtered = filtered.filter(p => String(p.categoryId) === String(filterCategoryId));
+        }
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(q));
+        }
+
+        if (!filtered.length) {
             tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#999;">No products</td></tr>';
             return;
         }
-        const rows = products.map(p => {
+
+        const rows = filtered.map(p => {
             const img = p.image ? `<img src="${p.image}" alt="${p.name}" class="stock-thumb">` : '';
             const qty = p.stockCount !== undefined ? p.stockCount : 0;
-            return `<tr><td>${img}</td><td>${p.name}</td><td><input type="number" class="stock-input" data-id="${p.id}" value="${qty}" style="width:80px;"></td></tr>`;
+            return `<tr data-category="${p.categoryId || ''}" data-name="${p.name.toLowerCase()}"><td>${img}</td><td>${p.name}</td><td><input type="number" class="stock-input" data-id="${p.id}" value="${qty}" style="width:80px;"></td></tr>`;
         }).join('');
         tbody.innerHTML = rows;
     }
@@ -28,10 +47,42 @@ const ManageStock = (function() {
         Popup.custom(html, { closeText: 'Close' });
     }
 
+    function populateFilter() {
+        loadCategories();
+        const select = document.getElementById('stockCategory');
+        if (!select) return;
+        let options = '<option value="">All Categories</option>';
+        categories.forEach(c => { options += `<option value="${c.id}">${c.name}</option>`; });
+        select.innerHTML = options;
+    }
+
     function onTableClick(e) {
         if (e.target.classList.contains('stock-thumb')) {
             showImage(e.target.getAttribute('src'), e.target.getAttribute('alt') || '');
         }
+    }
+
+    function onTableLeave() {
+        clearColumnHighlight();
+    }
+
+    function clearColumnHighlight() {
+        document.querySelectorAll('.manage-stock-table .column-hover').forEach(el => el.classList.remove('column-hover'));
+    }
+
+    function highlightColumn(index) {
+        clearColumnHighlight();
+        document.querySelectorAll('.manage-stock-table tr').forEach(row => {
+            const cell = row.children[index];
+            if (cell) cell.classList.add('column-hover');
+        });
+    }
+
+    function onTableHover(e) {
+        const cell = e.target.closest('td, th');
+        if (!cell) return;
+        const index = Array.prototype.indexOf.call(cell.parentNode.children, cell);
+        highlightColumn(index);
     }
 
     function save() {
@@ -55,11 +106,21 @@ const ManageStock = (function() {
     }
 
     function init() {
+        populateFilter();
         renderTable();
         const tbody = document.getElementById('manageStockBody');
         if (tbody) {
             tbody.addEventListener('click', onTableClick);
         }
+        const table = document.querySelector('.manage-stock-table');
+        if (table) {
+            table.addEventListener('mouseover', onTableHover);
+            table.addEventListener('mouseleave', onTableLeave);
+        }
+        const searchInput = document.getElementById('stockSearch');
+        const categorySelect = document.getElementById('stockCategory');
+        if (searchInput) searchInput.addEventListener('input', e => { searchQuery = e.target.value; renderTable(); });
+        if (categorySelect) categorySelect.addEventListener('change', e => { filterCategoryId = e.target.value; renderTable(); });
     }
 
     return {
