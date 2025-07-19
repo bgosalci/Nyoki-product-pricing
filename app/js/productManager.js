@@ -1270,8 +1270,22 @@ const ProductManager = (function() {
                             };
 
                             const categoryName = rowData['Category'];
-                            if (categoryName && categoryMap[categoryName]) {
-                                productData.categoryId = categoryMap[categoryName];
+                            if (categoryName) {
+                                if (categoryMap[categoryName]) {
+                                    productData.categoryId = categoryMap[categoryName];
+                                } else {
+                                    const newCategory = {
+                                        id: ++categoryCounter,
+                                        name: categoryName,
+                                        description: '',
+                                        color: '#6b5b73',
+                                        hasVAT: false,
+                                        vatPercent: 0
+                                    };
+                                    categories.push(newCategory);
+                                    categoryMap[newCategory.name] = newCategory.id;
+                                    productData.categoryId = newCategory.id;
+                                }
                             }
 
                             const materialsStr = rowData['Materials'];
@@ -1297,14 +1311,23 @@ const ProductManager = (function() {
                                         const [name, charges] = nameAndCharges.split(':');
                                         if (name && charges) {
                                             const mpName = name.trim();
-                                            const marketplace = marketplaceMap[mpName];
-                                            if (marketplace) {
-                                                const [percent, fixed] = charges.split('+');
-                                                const mpData = {
-                                                    id: marketplace.id,
+                                            let marketplace = marketplaceMap[mpName];
+                                            const [percent, fixed] = charges.split('+');
+                                            if (!marketplace) {
+                                                marketplace = {
+                                                    id: ++marketplaceCounter,
+                                                    name: mpName,
                                                     chargePercent: parseFloat(percent.replace('%', '')) || 0,
                                                     chargeFixed: parseFloat(fixed) || 0
                                                 };
+                                                marketplaces.push(marketplace);
+                                                marketplaceMap[mpName] = marketplace;
+                                            }
+                                            const mpData = {
+                                                id: marketplace.id,
+                                                chargePercent: parseFloat(percent.replace('%', '')) || marketplace.chargePercent,
+                                                chargeFixed: parseFloat(fixed) || marketplace.chargeFixed
+                                            };
                                                 
                                                 details.forEach(detail => {
                                                     const [key, value] = detail.split(':');
@@ -1318,8 +1341,7 @@ const ProductManager = (function() {
                                                 productData.marketplaces.push(mpData);
                                             }
                                         }
-                                    }
-                                });
+                                    });
                             }
 
                             products.push(productData);
@@ -1331,10 +1353,16 @@ const ProductManager = (function() {
 
                     productCounter = maxId;
                     saveToLocalStorage();
+                    saveCategoriesToStorage();
+                    saveMarketplacesToStorage();
+                    renderCategories();
+                    renderMarketplaces();
+                    renderMarketplaceOptions();
                     renderProducts();
                     populateCategoryDropdowns();
                     
                     if (window.DiscountAnalysis) {
+                        DiscountAnalysis.renderTabs();
                         DiscountAnalysis.refresh();
                     }
 
