@@ -512,6 +512,7 @@
                 <button class="nav-btn" onclick="showView('discount-analysis')">Discount Analysis</button>
                 <button class="nav-btn" onclick="showView('manage-categories')">Manage Categories</button>
                 <button class="nav-btn" onclick="showView('manage-marketplaces')">Manage Marketplaces</button>
+                <button class="nav-btn" onclick="showView('post-packaging')">Post &amp; Packaging</button>
             </div>
         </div>
 
@@ -712,6 +713,24 @@
             </div>
         </div>
 
+        <!-- Post & Packaging View -->
+        <div id="post-packaging-view" class="view-section">
+            <div class="main-content">
+                <div class="card">
+                    <h2>Global Post &amp; Packaging</h2>
+                    <div class="form-group">
+                        <label for="globalPostCost">Post &amp; Shipping Cost (£)</label>
+                        <input type="number" id="globalPostCost" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="globalPackagingCost">Packaging Cost (£)</label>
+                        <input type="number" id="globalPackagingCost" step="0.01" placeholder="0.00">
+                    </div>
+                    <button class="btn" onclick="savePostPackaging()">Save</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Discount Analysis View -->
         <div id="discount-analysis-view" class="view-section">
             <div class="card">
@@ -747,6 +766,7 @@
     <script src="js/popup.js"></script>
     <script src="js/productManager.js"></script>
     <script src="js/discountAnalysis.js"></script>
+    <script src="js/postPackaging.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

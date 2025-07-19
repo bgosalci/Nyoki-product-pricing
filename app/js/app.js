@@ -60,6 +60,12 @@ function handleMarketplaceCSVFile(event) {
     }
 }
 
+function savePostPackaging() {
+    if (window.PostPackaging) {
+        PostPackaging.save();
+    }
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByCategory');
     const searchInput = document.getElementById('searchInput');
@@ -96,6 +102,9 @@ function showView(viewName) {
     } else if (viewName === 'manage-marketplaces') {
         document.getElementById('manage-marketplaces-view').classList.add('active');
         document.querySelectorAll('.nav-btn')[4].classList.add('active');
+    } else if (viewName === 'post-packaging') {
+        document.getElementById('post-packaging-view').classList.add('active');
+        document.querySelectorAll('.nav-btn')[5].classList.add('active');
     }
 }
 
@@ -109,4 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the app
     ProductManager.init();
+    if (window.PostPackaging) {
+        PostPackaging.init();
+    }
 });

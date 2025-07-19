@@ -837,8 +837,12 @@ const ProductManager = (function() {
             document.getElementById('imageLink').value = '';
             document.getElementById('laborCost').value = '';
             document.getElementById('overheadCost').value = '';
-            document.getElementById('postCost').value = '';
-            document.getElementById('packagingCost').value = '';
+            let postPack = { postCost: '', packagingCost: '' };
+            if (window.PostPackaging && PostPackaging.getValues) {
+                postPack = PostPackaging.getValues();
+            }
+            document.getElementById('postCost').value = postPack.postCost !== undefined ? postPack.postCost : '';
+            document.getElementById('packagingCost').value = postPack.packagingCost !== undefined ? postPack.packagingCost : '';
             document.getElementById('stockCount').value = '';
             document.getElementById('marginPercent').value = '';
             document.getElementById('retailPrice').value = '';
@@ -1313,6 +1317,30 @@ const ProductManager = (function() {
 
         getProducts: function() {
             return products.slice();
+        },
+
+        applyPostPackagingCosts: function(post, pack) {
+            products.forEach(p => {
+                p.postCost = post;
+                p.packagingCost = pack;
+                const materialsCost = (p.materials || []).reduce((s, m) => s + m.cost, 0);
+                p.totalCost = p.laborCost + p.overheadCost + post + pack + materialsCost;
+                const basePrice = p.vatRate ? p.retailPrice / (1 + p.vatRate / 100) : p.retailPrice;
+                p.baseProfit = basePrice - p.totalCost;
+                p.baseMargin = (p.baseProfit / p.totalCost) * 100;
+                if (Array.isArray(p.marketplaces)) {
+                    p.marketplaces.forEach(mp => {
+                        mp.fee = p.retailPrice * (mp.chargePercent / 100) + mp.chargeFixed;
+                        mp.profit = p.baseProfit - mp.fee;
+                        mp.margin = (mp.profit / p.totalCost) * 100;
+                    });
+                }
+            });
+            renderProducts();
+            saveToLocalStorage();
+            if (window.DiscountAnalysis) {
+                DiscountAnalysis.refresh();
+            }
         },
 
         exportCSV: function() {
