@@ -162,6 +162,7 @@ The codebase follows a clean separation of concerns:
     overheadCost: Number,
     postCost: Number,
     packagingCost: Number,
+    stockCount: Number,
     retailPrice: Number,
     marketplaces: Array<{id: Number, fee: Number, profit: Number}>
 }

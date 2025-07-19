@@ -1161,7 +1161,8 @@ const ProductManager = (function() {
                 'Labor Cost',
                 'Overhead Cost',
                 'Materials',
-                'Marketplaces'
+                'Marketplaces',
+                'Stock Quantity'
             ];
             const rows = products.map(p => {
                 const categoryName = p.categoryId ? (categoryMap[p.categoryId] || '') : '';
@@ -1194,7 +1195,8 @@ const ProductManager = (function() {
                     p.laborCost !== undefined ? p.laborCost.toFixed(2) : '',
                     p.overheadCost !== undefined ? p.overheadCost.toFixed(2) : '',
                     materialsStr,
-                    marketplacesStr
+                    marketplacesStr,
+                    p.stockCount !== undefined ? p.stockCount : 0
                 ];
             });
             let csv = header.join(',') + '\n';
@@ -1223,7 +1225,7 @@ const ProductManager = (function() {
                     }
 
                     const header = lines[0].split(',').map(col => col.replace(/"/g, '').trim());
-                    const expectedColumns = ['ID', 'Name', 'Category', 'CDN Image Link', 'Retail Price', 'Total Cost', 'Profit', 'Margin %', 'Labor Cost', 'Overhead Cost', 'Materials', 'Marketplaces'];
+                    const expectedColumns = ['ID', 'Name', 'Category', 'CDN Image Link', 'Retail Price', 'Total Cost', 'Profit', 'Margin %', 'Labor Cost', 'Overhead Cost', 'Materials', 'Marketplaces', 'Stock Quantity'];
                     
                     if (!expectedColumns.every(col => header.includes(col))) {
                         Popup.alert('Invalid CSV format: Missing required columns');
@@ -1258,6 +1260,7 @@ const ProductManager = (function() {
                                 overheadCost: parseFloat(rowData['Overhead Cost']) || 0,
                                 postCost: 0,
                                 packagingCost: 0,
+                                stockCount: parseInt(rowData['Stock Quantity']) || 0,
                                 image: rowData['CDN Image Link'] || '',
                                 materials: [],
                                 marketplaces: [],
