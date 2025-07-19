@@ -3,6 +3,17 @@ const Popup = (function() {
         const overlay = document.createElement('div');
         overlay.className = 'popup-overlay';
 
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+                if (options.type === 'confirm') {
+                    if (options.onCancel) options.onCancel();
+                } else if (options.onClose) {
+                    options.onClose();
+                }
+            }
+        });
+
         const box = document.createElement('div');
         box.className = 'popup';
 
@@ -49,6 +60,13 @@ const Popup = (function() {
     function customPopup(html, options = {}) {
         const overlay = document.createElement('div');
         overlay.className = 'popup-overlay';
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+                if (options.onClose) options.onClose();
+            }
+        });
 
         const box = document.createElement('div');
         box.className = 'popup';

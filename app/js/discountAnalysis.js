@@ -114,7 +114,7 @@ const DiscountAnalysis = (function() {
                    `<div class="profit-row total"><span>${name} Profit:</span><span>£${mp.profit.toFixed(2)} (${mp.margin.toFixed(1)}%)</span></div>`;
         }).join('') : '';
 
-        const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top:15px;">${mpRows}</div>` : '';
+        const mpSection = mpRows ? `<div class="profit-analysis">${mpRows}</div>` : '';
 
         const materialsListHtml = product.materials.map(m => `<div style="font-size:0.9em; color:#666;">• ${m.name}: £${m.cost.toFixed(2)}</div>`).join('');
 
@@ -122,9 +122,7 @@ const DiscountAnalysis = (function() {
         const baseProfit = product.baseProfit !== undefined ? product.baseProfit : ((product.retailPrice / (1 + (product.vatRate || 0) / 100)) - product.totalCost);
         const baseMargin = product.baseMargin !== undefined ? product.baseMargin : (baseProfit / product.totalCost * 100);
 
-        return `
-            <h3 style="margin-bottom:10px;">${product.name}</h3>
-            ${product.image ? `<div style="margin-bottom:10px;"><img src="${product.image}" alt="${product.name}" style="max-width:100%; max-height:200px; object-fit:contain; border-radius:8px;"></div>` : ''}
+        const costSection = `
             <div class="profit-analysis">
                 <div class="profit-row total"><span>Total Cost:</span><span>£${product.totalCost.toFixed(2)}</span></div>
                 <div class="profit-row"><span>Stock:</span><span>${product.stockCount || 0}</span></div>
@@ -132,12 +130,21 @@ const DiscountAnalysis = (function() {
                 <div class="profit-row"><span>Retail Price:</span><span>£${product.retailPrice.toFixed(2)}</span></div>
                 <div class="profit-row total"><span>Profit:</span><span>£${baseProfit.toFixed(2)}</span></div>
                 <div class="profit-row total"><span>Margin:</span><span>${baseMargin.toFixed(1)}%</span></div>
-            </div>
-            <div style="margin-top:15px;">
-                <div><strong>Materials:</strong></div>
-                ${materialsListHtml}
-            </div>
-            ${mpSection}`;
+                <div style="margin-top:15px;">
+                    <div><strong>Materials:</strong></div>
+                    ${materialsListHtml}
+                </div>
+            </div>`;
+
+        const mpColumn = mpSection ? `<div class="popup-col">${mpSection}</div>` : '';
+
+        return `
+            <h3 style="margin-bottom:10px;">${product.name}</h3>
+            ${product.image ? `<div style="margin-bottom:10px;"><img src="${product.image}" alt="${product.name}" style="max-width:100%; max-height:200px; object-fit:contain; border-radius:8px;"></div>` : ''}
+            <div class="popup-columns">
+                <div class="popup-col">${costSection}</div>
+                ${mpColumn}
+            </div>`;
     }
 
     function viewProduct(index) {
