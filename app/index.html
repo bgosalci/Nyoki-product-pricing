@@ -158,6 +158,35 @@
             transition: border-color 0.3s ease;
         }
 
+        .tooltip {
+            position: relative;
+            display: block;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            background: #6b5b73;
+            color: #fff;
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 100;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .tooltip:hover .tooltip-text,
+        .tooltip input:focus + .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
         input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #8b7355;
@@ -290,7 +319,7 @@
         }
 
         .product-name {
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: bold;
             color: #6b5b73;
             margin-bottom: 10px;
@@ -560,7 +589,10 @@
                     <h2>Create New Product</h2>
                     <div class="form-group">
                         <label for="productName">Product Name</label>
-                        <input type="text" id="productName" placeholder="Enter product name">
+                        <div class="tooltip">
+                            <input type="text" id="productName" placeholder="Enter product name" />
+                            <span class="tooltip-text">Enter product name</span>
+                        </div>
                     </div>
 
                     <div class="form-group">

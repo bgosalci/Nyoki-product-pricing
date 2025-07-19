@@ -17,6 +17,7 @@ const ProductManager = (function() {
     let isEditingMarketplace = false;
     let editingMarketplaceIndex = -1;
 
+
     // Save products to localStorage
     function saveToLocalStorage() {
         localStorage.setItem('nyoki_products', JSON.stringify(products));
@@ -617,7 +618,7 @@ const ProductManager = (function() {
                             ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
                         </div>
                         <div class="product-info">
-                            <div class="product-name">${product.name}</div>
+                            <div class="product-name" title="${product.name}">${product.name}</div>
                             <div class="card-collapsed">
                                 ${summarySection}
                                 ${mpSummarySection}
