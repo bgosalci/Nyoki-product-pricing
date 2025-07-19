@@ -96,15 +96,18 @@ function showView(viewName) {
     } else if (viewName === 'discount-analysis') {
         document.getElementById('discount-analysis-view').classList.add('active');
         document.querySelectorAll('.nav-btn')[2].classList.add('active');
+    } else if (viewName === 'manage-stock') {
+        document.getElementById('manage-stock-view').classList.add('active');
+        document.querySelectorAll('.nav-btn')[3].classList.add('active');
     } else if (viewName === 'manage-categories') {
         document.getElementById('manage-categories-view').classList.add('active');
-        document.querySelectorAll('.nav-btn')[3].classList.add('active');
+        document.querySelectorAll('.nav-btn')[4].classList.add('active');
     } else if (viewName === 'manage-marketplaces') {
         document.getElementById('manage-marketplaces-view').classList.add('active');
-        document.querySelectorAll('.nav-btn')[4].classList.add('active');
+        document.querySelectorAll('.nav-btn')[5].classList.add('active');
     } else if (viewName === 'post-packaging') {
         document.getElementById('post-packaging-view').classList.add('active');
-        document.querySelectorAll('.nav-btn')[5].classList.add('active');
+        document.querySelectorAll('.nav-btn')[6].classList.add('active');
     }
 }
 
@@ -120,5 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
     ProductManager.init();
     if (window.PostPackaging) {
         PostPackaging.init();
+    }
+    if (window.ManageStock) {
+        ManageStock.init();
     }
 });
