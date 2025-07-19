@@ -1319,6 +1319,20 @@ const ProductManager = (function() {
             return products.slice();
         },
 
+        isEditingProduct: function() {
+            return isEditing;
+        },
+
+        setPostPackagingInputs: function(post, pack) {
+            if (!isEditing) {
+                const postInput = document.getElementById('postCost');
+                const packInput = document.getElementById('packagingCost');
+                if (postInput) postInput.value = post;
+                if (packInput) packInput.value = pack;
+                updateCostBreakdown();
+            }
+        },
+
         applyPostPackagingCosts: function(post, pack) {
             products.forEach(p => {
                 p.postCost = post;

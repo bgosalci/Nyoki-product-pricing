@@ -33,11 +33,19 @@ const PostPackaging = (function() {
         }
     }
 
+    function updateProductForm() {
+        if (window.ProductManager && ProductManager.setPostPackagingInputs &&
+            ProductManager.isEditingProduct && !ProductManager.isEditingProduct()) {
+            ProductManager.setPostPackagingInputs(postCost, packagingCost);
+        }
+    }
+
     return {
         init: function() {
             loadFromStorage();
             updateInputs();
             applyToProducts();
+            updateProductForm();
         },
         save: function() {
             const postInput = parseFloat(document.getElementById('globalPostCost').value) || 0;
@@ -51,6 +59,7 @@ const PostPackaging = (function() {
             saveToStorage();
             applyToProducts();
             updateInputs();
+            updateProductForm();
         },
         getValues: function() {
             return { postCost, packagingCost };
