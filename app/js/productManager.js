@@ -611,13 +611,15 @@ const ProductManager = (function() {
 
         const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top: 15px;">${mpRows}</div>` : '';
 
+        const displayName = product.name.length > 50 ? product.name.slice(0, 50) + '…' : product.name;
+
         return `
                     <div class="product-card" id="productCard_${index}">
                         <div class="product-image">
                             ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
                         </div>
                         <div class="product-info">
-                            <div class="product-name">${product.name}</div>
+                            <div class="product-name" title="${product.name}">${displayName}</div>
                             <div class="card-collapsed">
                                 ${summarySection}
                                 ${mpSummarySection}
@@ -775,6 +777,10 @@ const ProductManager = (function() {
                 Popup.alert('Please enter a product name');
                 return;
             }
+            if (name.length > 50) {
+                Popup.alert('Product name must be 50 characters or less');
+                return;
+            }
 
             if (materials.length === 0) {
                 Popup.alert('Please add at least one material');
@@ -902,7 +908,7 @@ const ProductManager = (function() {
             editingMaterialIndex = -1; // Reset material editing
 
             // Populate form with product data
-            document.getElementById('productName').value = product.name;
+            document.getElementById('productName').value = product.name.slice(0, 50);
             document.getElementById('productCategory').value = product.categoryId || '';
             renderMarketplaceOptions(product.marketplaces || []);
             document.getElementById('laborCost').value = product.laborCost;
