@@ -430,17 +430,20 @@
             text-align: center;
         }
 
-        .discount-table .product-cell {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .discount-table .table-thumb {
             width: 40px;
             height: 40px;
             object-fit: cover;
             border-radius: 6px;
+        }
+
+        .discount-table .thumb-cell {
+            width: 44px;
+        }
+
+        .discount-table .product-name {
+            font-size: 1em;
+            font-weight: normal;
         }
 
         .discount-table .product-name[data-tooltip] {
@@ -457,6 +460,7 @@
             background: #6b5b73;
             color: #fff;
             padding: 4px 8px;
+            font-size: 0.9em;
             border-radius: 6px;
             white-space: nowrap;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
@@ -791,6 +795,7 @@
                 <table class="discount-table">
                     <thead>
                         <tr>
+                            <th>Thumb</th>
                             <th>Product</th>
                             <th>View</th>
                             <th>Retail Price</th>
