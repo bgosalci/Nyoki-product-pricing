@@ -661,11 +661,18 @@
                         <input type="number" id="categoryVATPercent" placeholder="VAT %" step="0.01" style="display:none; margin-top:5px;">
                     </div>
 
-                    <button class="btn" onclick="saveCategory()">Save Category</button>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn" onclick="saveCategory()">Save Category</button>
+                        <button class="btn btn-secondary" onclick="importCategories()">Import Categories</button>
+                        <input type="file" id="categoryCSVInput" accept=".csv" style="display:none;" onchange="handleCategoryCSVFile(event)">
+                    </div>
                 </div>
 
                 <div class="card">
-                    <h2>Existing Categories</h2>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h2 style="margin:0;">Existing Categories</h2>
+                        <button class="btn" onclick="exportCategories()">Export Categories</button>
+                    </div>
                     <div id="categoriesList">
                         <p style="text-align: center; color: #999; font-style: italic;">No categories created yet</p>
                     </div>

@@ -30,6 +30,21 @@ function handleCSVFile(event) {
     }
 }
 
+function exportCategories() {
+    ProductManager.exportCategoriesCSV();
+}
+
+function importCategories() {
+    document.getElementById('categoryCSVInput').click();
+}
+
+function handleCategoryCSVFile(event) {
+    const file = event.target.files[0];
+    if (file) {
+        ProductManager.importCategoriesCSV(file);
+    }
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByCategory');
     const searchInput = document.getElementById('searchInput');

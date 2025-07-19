@@ -999,6 +999,90 @@ const ProductManager = (function() {
             document.getElementById('categoryVATPercent').style.display = 'none';
         },
 
+        exportCategoriesCSV: function() {
+            const header = ['ID', 'Name', 'Description', 'Color', 'VAT Applicable', 'VAT %'];
+            const rows = categories.map(c => [
+                c.id,
+                c.name,
+                c.description || '',
+                c.color || '',
+                c.hasVAT ? 'Yes' : 'No',
+                c.vatPercent || 0
+            ]);
+            let csv = header.join(',') + '\n';
+            csv += rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'categories.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        },
+
+        importCategoriesCSV: function(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n').filter(line => line.trim());
+
+                    if (lines.length < 2) {
+                        Popup.alert('Invalid CSV file: No data found');
+                        return;
+                    }
+
+                    const header = lines[0].split(',').map(col => col.replace(/"/g, '').trim());
+                    const expected = ['ID', 'Name', 'Description', 'Color', 'VAT Applicable', 'VAT %'];
+
+                    if (!expected.every(col => header.includes(col))) {
+                        Popup.alert('Invalid CSV format: Missing required columns');
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    let maxId = Math.max(categoryCounter, ...categories.map(c => c.id || 0));
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = ProductManager.parseCSVLine(lines[i]);
+                        if (values.length !== header.length) continue;
+
+                        const rowData = {};
+                        header.forEach((col, idx) => {
+                            rowData[col] = values[idx];
+                        });
+
+                        const catData = {
+                            id: ++maxId,
+                            name: rowData['Name'] || '',
+                            description: rowData['Description'] || '',
+                            color: rowData['Color'] || '#6b5b73',
+                            hasVAT: /^\s*y(es)?\s*$/i.test(rowData['VAT Applicable']),
+                            vatPercent: parseFloat(rowData['VAT %']) || 0
+                        };
+
+                        categories.push(catData);
+                        importedCount++;
+                    }
+
+                    categoryCounter = maxId;
+                    renderCategories();
+                    populateCategoryDropdowns();
+                    saveCategoriesToStorage();
+
+                    Popup.alert(`Successfully imported ${importedCount} categories`);
+
+                    document.getElementById('categoryCSVInput').value = '';
+                } catch (error) {
+                    console.error('CSV import error:', error);
+                    Popup.alert('Error importing CSV file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        },
+
         // Marketplace management functions
         saveMarketplace: function() {
             const name = document.getElementById('marketplaceName').value.trim();
