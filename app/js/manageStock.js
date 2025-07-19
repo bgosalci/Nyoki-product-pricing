@@ -22,6 +22,18 @@ const ManageStock = (function() {
         tbody.innerHTML = rows;
     }
 
+    function showImage(src, name) {
+        if (!src) return;
+        const html = `<div style="text-align:center;"><img src="${src}" alt="${name}" style="max-width:100%; max-height:400px; object-fit:contain; border-radius:8px;"></div>`;
+        Popup.custom(html, { closeText: 'Close' });
+    }
+
+    function onTableClick(e) {
+        if (e.target.classList.contains('stock-thumb')) {
+            showImage(e.target.getAttribute('src'), e.target.getAttribute('alt') || '');
+        }
+    }
+
     function save() {
         const inputs = document.querySelectorAll('.stock-input');
         const updates = [];
@@ -42,8 +54,16 @@ const ManageStock = (function() {
         renderTable();
     }
 
+    function init() {
+        renderTable();
+        const tbody = document.getElementById('manageStockBody');
+        if (tbody) {
+            tbody.addEventListener('click', onTableClick);
+        }
+    }
+
     return {
-        init: renderTable,
+        init,
         save
     };
 })();
