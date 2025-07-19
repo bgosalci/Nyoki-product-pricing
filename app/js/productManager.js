@@ -1130,14 +1130,17 @@ const ProductManager = (function() {
         },
 
         exportCategoriesCSV: function() {
-            const header = ['ID', 'Name', 'Description', 'Color', 'VAT Applicable', 'VAT %'];
+            const header = ['ID', 'Name', 'Description', 'Color', 'VAT Applicable', 'VAT %', 'Materials'];
             const rows = categories.map(c => [
                 c.id,
                 c.name,
                 c.description || '',
                 c.color || '',
                 c.hasVAT ? 'Yes' : 'No',
-                c.vatPercent || 0
+                c.vatPercent || 0,
+                (Array.isArray(c.materials) ? c.materials : [])
+                    .map(m => `${m.name}:${m.cost.toFixed(2)}`)
+                    .join('; ')
             ]);
             let csv = header.join(',') + '\n';
             csv += rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
@@ -1165,12 +1168,13 @@ const ProductManager = (function() {
                     }
 
                     const header = lines[0].split(',').map(col => col.replace(/"/g, '').trim());
-                    const expected = ['ID', 'Name', 'Description', 'Color', 'VAT Applicable', 'VAT %'];
+                    const required = ['ID', 'Name', 'Description', 'Color', 'VAT Applicable', 'VAT %'];
 
-                    if (!expected.every(col => header.includes(col))) {
+                    if (!required.every(col => header.includes(col))) {
                         Popup.alert('Invalid CSV format: Missing required columns');
                         return;
                     }
+                    const hasMaterials = header.includes('Materials');
 
                     let importedCount = 0;
                     let maxId = Math.max(categoryCounter, ...categories.map(c => c.id || 0));
@@ -1190,8 +1194,22 @@ const ProductManager = (function() {
                             description: rowData['Description'] || '',
                             color: rowData['Color'] || '#6b5b73',
                             hasVAT: /^\s*y(es)?\s*$/i.test(rowData['VAT Applicable']),
-                            vatPercent: parseFloat(rowData['VAT %']) || 0
+                            vatPercent: parseFloat(rowData['VAT %']) || 0,
+                            materials: []
                         };
+
+                        if (hasMaterials && rowData['Materials']) {
+                            const materialsStr = rowData['Materials'];
+                            materialsStr.split(';').map(s => s.trim()).filter(Boolean).forEach(pair => {
+                                const [mName, mCost] = pair.split(':');
+                                if (mName && mCost) {
+                                    catData.materials.push({
+                                        name: mName.trim(),
+                                        cost: parseFloat(mCost) || 0
+                                    });
+                                }
+                            });
+                        }
 
                         categories.push(catData);
                         importedCount++;
