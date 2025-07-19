@@ -124,7 +124,7 @@ const DiscountAnalysis = (function() {
 
         return `
             <h3 style="margin-bottom:10px;">${product.name}</h3>
-            ${product.image ? `<div style="margin-bottom:10px;"><img src="${product.image}" alt="${product.name}" style="max-width:100%; border-radius:8px;"></div>` : ''}
+            ${product.image ? `<div style="margin-bottom:10px;"><img src="${product.image}" alt="${product.name}" style="max-width:100%; max-height:200px; object-fit:contain; border-radius:8px;"></div>` : ''}
             <div class="profit-analysis">
                 <div class="profit-row total"><span>Total Cost:</span><span>£${product.totalCost.toFixed(2)}</span></div>
                 <div class="profit-row"><span>Stock:</span><span>${product.stockCount || 0}</span></div>
