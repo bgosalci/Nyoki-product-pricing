@@ -118,6 +118,9 @@ saveProduct: function() {
 - **REQUIRED**: Error handling for localStorage failures
 - **REQUIRED**: Update CSV export and import routines when product properties change
 - **REQUIRED**: Update localStorage migration logic whenever product structure changes
+- **REQUIRED**: When changing the Product Category data structure, update the Product Category export and import routines
+- **REQUIRED**: When changing the Marketplace data structure, update the Marketplace export and import routines
+- **REQUIRED**: When updating the Product data structure, update the Product export and import routines
 
 ```javascript
 function saveToLocalStorage() {
