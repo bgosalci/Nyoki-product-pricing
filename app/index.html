@@ -562,6 +562,10 @@
             cursor: pointer;
         }
 
+        .save-actions {
+            text-align: right;
+        }
+
         #discount-analysis-view .filter-bar {
             top: 40px;
         }
@@ -891,7 +895,9 @@
                     </thead>
                     <tbody id="manageStockBody"></tbody>
                 </table>
-                <button class="btn" style="margin-top:15px;" onclick="ManageStock.save()">Save Changes</button>
+                <div class="save-actions">
+                    <button class="btn" style="margin-top:15px;" onclick="ManageStock.save()">Save Changes</button>
+                </div>
             </div>
         </div>
     </div>
