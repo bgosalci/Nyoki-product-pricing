@@ -17,7 +17,6 @@ const ProductManager = (function() {
     let isEditingMarketplace = false;
     let editingMarketplaceIndex = -1;
 
-    const MAX_NAME_LENGTH = 50;
 
     // Save products to localStorage
     function saveToLocalStorage() {
@@ -613,16 +612,13 @@ const ProductManager = (function() {
 
         const mpSection = mpRows ? `<div class="profit-analysis" style="margin-top: 15px;">${mpRows}</div>` : '';
 
-        const displayName = product.name.length > MAX_NAME_LENGTH ?
-            product.name.slice(0, MAX_NAME_LENGTH) + '…' : product.name;
-
         return `
                     <div class="product-card" id="productCard_${index}">
                         <div class="product-image">
                             ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
                         </div>
                         <div class="product-info">
-                            <div class="product-name" title="${product.name}">${displayName}</div>
+                            <div class="product-name" title="${product.name}">${product.name}</div>
                             <div class="card-collapsed">
                                 ${summarySection}
                                 ${mpSummarySection}
@@ -780,10 +776,6 @@ const ProductManager = (function() {
                 Popup.alert('Please enter a product name');
                 return;
             }
-            if (name.length > MAX_NAME_LENGTH) {
-                Popup.alert(`Product name must be ${MAX_NAME_LENGTH} characters or less`);
-                return;
-            }
 
             if (materials.length === 0) {
                 Popup.alert('Please add at least one material');
@@ -911,7 +903,7 @@ const ProductManager = (function() {
             editingMaterialIndex = -1; // Reset material editing
 
             // Populate form with product data
-            document.getElementById('productName').value = product.name.slice(0, MAX_NAME_LENGTH);
+            document.getElementById('productName').value = product.name;
             document.getElementById('productCategory').value = product.categoryId || '';
             renderMarketplaceOptions(product.marketplaces || []);
             document.getElementById('laborCost').value = product.laborCost;
