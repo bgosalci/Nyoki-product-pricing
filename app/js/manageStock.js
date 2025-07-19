@@ -62,28 +62,6 @@ const ManageStock = (function() {
         }
     }
 
-    function onTableLeave() {
-        clearColumnHighlight();
-    }
-
-    function clearColumnHighlight() {
-        document.querySelectorAll('.manage-stock-table .column-hover').forEach(el => el.classList.remove('column-hover'));
-    }
-
-    function highlightColumn(index) {
-        clearColumnHighlight();
-        document.querySelectorAll('.manage-stock-table tr').forEach(row => {
-            const cell = row.children[index];
-            if (cell) cell.classList.add('column-hover');
-        });
-    }
-
-    function onTableHover(e) {
-        const cell = e.target.closest('td, th');
-        if (!cell) return;
-        const index = Array.prototype.indexOf.call(cell.parentNode.children, cell);
-        highlightColumn(index);
-    }
 
     function save() {
         const inputs = document.querySelectorAll('.stock-input');
@@ -112,11 +90,7 @@ const ManageStock = (function() {
         if (tbody) {
             tbody.addEventListener('click', onTableClick);
         }
-        const table = document.querySelector('.manage-stock-table');
-        if (table) {
-            table.addEventListener('mouseover', onTableHover);
-            table.addEventListener('mouseleave', onTableLeave);
-        }
+        // No custom hover handlers; styling handles row highlighting
         const searchInput = document.getElementById('stockSearch');
         const categorySelect = document.getElementById('stockCategory');
         if (searchInput) searchInput.addEventListener('input', e => { searchQuery = e.target.value; renderTable(); });
