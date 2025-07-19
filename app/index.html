@@ -430,6 +430,43 @@
             text-align: center;
         }
 
+        .discount-table .table-thumb {
+            width: 90%;
+            height: 90%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .discount-table .thumb-cell {
+            width: 44px;
+        }
+
+        .discount-table .product-name {
+            font-size: 1em;
+            font-weight: normal;
+        }
+
+        .discount-table .product-name[data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+
+        .discount-table .product-name[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #6b5b73;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 0.9em;
+            border-radius: 6px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            z-index: 10;
+        }
+
         .discount-table tbody tr:hover td {
             background-color: #f9f7f4;
         }
@@ -758,6 +795,7 @@
                 <table class="discount-table">
                     <thead>
                         <tr>
+                            <th>Thumb</th>
                             <th>Product</th>
                             <th>View</th>
                             <th>Retail Price</th>
