@@ -573,8 +573,8 @@ const ProductManager = (function() {
                                 <button class="btn btn-secondary" onclick="ProductManager.toggleCardDetails(${index})" style="margin-top:10px;">Show Less</button>
                             </div>
                             <div class="product-buttons">
-                                <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit Product</button>
-                                <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete Product</button>
+                                <button class="btn btn-edit" onclick="ProductManager.editProduct(${index})">Edit</button>
+                                <button class="btn btn-danger" onclick="ProductManager.removeProduct(${index})">Delete</button>
                             </div>
                         </div>
                     </div>
