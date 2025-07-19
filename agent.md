@@ -116,6 +116,8 @@ saveProduct: function() {
 - **REQUIRED**: Separate storage functions for each data type
 - **REQUIRED**: Data migration logic for backward compatibility
 - **REQUIRED**: Error handling for localStorage failures
+- **REQUIRED**: Update CSV export and import routines when product properties change
+- **REQUIRED**: Update localStorage migration logic whenever product structure changes
 
 ```javascript
 function saveToLocalStorage() {
