@@ -160,7 +160,7 @@
 
         .tooltip {
             position: relative;
-            display: inline-block;
+            display: block;
         }
 
         .tooltip-text {
@@ -172,15 +172,17 @@
             border-radius: 6px;
             position: absolute;
             z-index: 100;
-            bottom: 125%;
+            bottom: 110%;
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s ease;
             white-space: nowrap;
+            pointer-events: none;
         }
 
-        .tooltip:hover .tooltip-text {
+        .tooltip:hover .tooltip-text,
+        .tooltip input:focus + .tooltip-text {
             visibility: visible;
             opacity: 1;
         }
@@ -317,7 +319,7 @@
         }
 
         .product-name {
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: bold;
             color: #6b5b73;
             margin-bottom: 10px;
@@ -550,7 +552,7 @@
                     <h2>Create New Product</h2>
                     <div class="form-group">
                         <label for="productName">Product Name</label>
-                        <div class="tooltip" style="width:100%;">
+                        <div class="tooltip">
                             <input type="text" id="productName" maxlength="50" placeholder="Enter product name" />
                             <span class="tooltip-text">Max 50 characters</span>
                         </div>
