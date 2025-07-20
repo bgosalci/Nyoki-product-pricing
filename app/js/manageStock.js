@@ -14,6 +14,18 @@ const ManageStock = (function() {
         products = data ? JSON.parse(data) : [];
     }
 
+    function getBorderClass(qty) {
+        if (qty === 0) return 'stock-zero';
+        if (qty < 5) return 'stock-low';
+        return 'stock-ok';
+    }
+
+    function applyInputClass(input) {
+        const val = parseInt(input.value, 10) || 0;
+        input.classList.remove('stock-zero', 'stock-low', 'stock-ok');
+        input.classList.add(getBorderClass(val));
+    }
+
     function renderTable() {
         loadProducts();
         const tbody = document.getElementById('manageStockBody');
@@ -36,9 +48,14 @@ const ManageStock = (function() {
         const rows = filtered.map(p => {
             const img = p.image ? `<img src="${p.image}" alt="${p.name}" class="stock-thumb">` : '';
             const qty = p.stockCount !== undefined ? p.stockCount : 0;
-            return `<tr data-category="${p.categoryId || ''}" data-name="${p.name.toLowerCase()}"><td>${img}</td><td>${p.name}</td><td><input type="number" class="stock-input" data-id="${p.id}" value="${qty}" style="width:80px;"></td></tr>`;
+            const cls = getBorderClass(qty);
+            return `<tr data-category="${p.categoryId || ''}" data-name="${p.name.toLowerCase()}"><td>${img}</td><td>${p.name}</td><td><input type="number" class="stock-input ${cls}" data-id="${p.id}" value="${qty}" style="width:80px;"></td></tr>`;
         }).join('');
         tbody.innerHTML = rows;
+
+        tbody.querySelectorAll('.stock-input').forEach(inp => {
+            inp.addEventListener('input', () => applyInputClass(inp));
+        });
     }
 
     function showImage(src, name) {
