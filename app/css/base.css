@@ -408,6 +408,14 @@ input:focus, textarea:focus, select:focus {
     padding: 10px 0;
 }
 
+.product-filter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
 .file-input-label {
     background: #8b7355;
     color: white;
