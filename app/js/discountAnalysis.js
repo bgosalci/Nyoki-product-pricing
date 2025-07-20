@@ -81,8 +81,7 @@ const DiscountAnalysis = (function() {
                 let profit = basePrice - p.totalCost;
                 
                 if (mp && mpData) {
-                    const percentFee = discountedRetailPrice - (discountedRetailPrice / (1 + mpData.chargePercent / 100));
-                    const fee = percentFee + mpData.chargeFixed;
+                    const fee = discountedRetailPrice * (mpData.chargePercent / 100) + mpData.chargeFixed;
                     profit -= fee;
                 }
                 
