@@ -1,22 +1,22 @@
 const ThemeManager = (function() {
-    let discountBaseColor = '#ff4d4d';
+    let themeData = { base: '#ff4d4d', mp: {} };
 
     function loadTheme() {
         const data = localStorage.getItem('nyoki_discount_theme');
         if (data) {
             try {
                 const obj = JSON.parse(data);
-                if (obj && obj.baseColor) {
-                    discountBaseColor = obj.baseColor;
+                if (obj && obj.base) {
+                    themeData = obj;
                 }
             } catch (e) {
-                discountBaseColor = '#ff4d4d';
+                themeData = { base: '#ff4d4d', mp: {} };
             }
         }
     }
 
     function saveTheme() {
-        localStorage.setItem('nyoki_discount_theme', JSON.stringify({ baseColor: discountBaseColor }));
+        localStorage.setItem('nyoki_discount_theme', JSON.stringify(themeData));
     }
 
     function lighten(hex, percent) {
@@ -30,8 +30,9 @@ const ThemeManager = (function() {
         return '#' + ((1 << 24) + (newR << 16) + (newG << 8) + newB).toString(16).slice(1);
     }
 
-    function applyTheme() {
-        const colors = [80, 60, 40, 20, 0].map(p => lighten(discountBaseColor, p));
+    function applyTheme(mpId = '') {
+        const base = themeData.mp[mpId] || themeData.base;
+        const colors = [80, 60, 40, 20, 0].map(p => lighten(base, p));
         let styleEl = document.getElementById('discountThemeStyles');
         if (!styleEl) {
             styleEl = document.createElement('style');
@@ -51,17 +52,24 @@ const ThemeManager = (function() {
             loadTheme();
             applyTheme();
         },
-        setDiscountColor: function(color) {
+        setDiscountColor: function(color, mpId = '') {
             if (!/^#([0-9A-F]{3}){1,2}$/i.test(color)) {
                 Popup.alert('Please select a valid color');
                 return;
             }
-            discountBaseColor = color;
+            if (mpId) {
+                themeData.mp[mpId] = color;
+            } else {
+                themeData.base = color;
+            }
             saveTheme();
-            applyTheme();
+            applyTheme(mpId);
         },
-        getDiscountColor: function() {
-            return discountBaseColor;
+        getDiscountColor: function(mpId = '') {
+            return themeData.mp[mpId] || themeData.base;
+        },
+        applyThemeFor: function(mpId = '') {
+            applyTheme(mpId);
         }
     };
 })();
