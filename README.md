@@ -110,18 +110,22 @@ cd app/ && python -m SimpleHTTPServer 8000
 
 ### File Structure
 ```
-app/
-├── index.html              # Main SPA interface
-├── js/
-│   ├── productManager.js   # Core business logic (closure-based)
-│   ├── discountAnalysis.js  # Profit analysis at different discounts
-│   ├── manageStock.js      # Inventory management view
-│   ├── themeManager.js     # Handles discount colour themes
-│   ├── postPackaging.js    # Global post & packaging settings
-│   ├── app.js             # UI event handling and navigation
-│   └── popup.js           # Modal dialog utility
-docs/
-└── Technical-Requirements-Specification.md  # Detailed technical specs
+project-root/
+├── README.md                        # Project overview (this file)
+├── agent.md                         # Coding standards and guidelines
+├── app/
+│   ├── index.html                   # Main SPA interface
+│   ├── Nyoki-transparent-logo-lrg.png # Brand logo used in UI
+│   └── js/
+│       ├── productManager.js        # Core business logic (closure-based)
+│       ├── discountAnalysis.js      # Profit analysis at different discounts
+│       ├── manageStock.js           # Inventory management view
+│       ├── themeManager.js          # Handles discount colour themes
+│       ├── postPackaging.js         # Global post & packaging settings
+│       ├── app.js                   # UI event handling and navigation
+│       └── popup.js                 # Modal dialog utility
+└── docs/
+    └── Technical-Requirements-Specification.md  # Detailed technical specs
 ```
 
 ### Core Architecture Patterns
