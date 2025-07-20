@@ -15,6 +15,10 @@ function saveMarketplace() {
     ProductManager.saveMarketplace();
 }
 
+function openSettings() {
+    Popup.custom('<h2 style="text-align:left;">Settings</h2>');
+}
+
 function exportProducts() {
     ProductManager.exportCSV();
 }
