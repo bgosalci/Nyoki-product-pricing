@@ -26,8 +26,34 @@ function openSettings() {
 }
 
 function openThemeSettings() {
-    const html = `<h2 style="text-align:left;">Set Colour Themes</h2><p>Coming soon...</p>`;
+    const mps = ProductManager.getMarketplaces ? ProductManager.getMarketplaces() : [];
+    const current = ThemeManager ? ThemeManager.getDiscountColor('') : '#ff4d4d';
+    const options = ['<option value="">Base</option>'].concat(mps.map(mp => `<option value="${mp.id}">${mp.name}</option>`)).join('');
+    const html = `
+        <h2 style="text-align:left;">Set Colour Themes</h2>
+        <div class="form-group" style="margin-bottom:10px;">
+            <label for="themeMarketplaceSelect">Marketplace</label>
+            <select id="themeMarketplaceSelect">${options}</select>
+        </div>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="discountBaseColour">Discount Base Colour</label>
+            <input type="color" id="discountBaseColour" value="${current}">
+        </div>
+        <button class="btn" onclick="saveThemeSettings()">Save</button>`;
     Popup.custom(html, { closeText: 'Close' });
+    const select = document.getElementById('themeMarketplaceSelect');
+    select.addEventListener('change', () => {
+        const color = ThemeManager.getDiscountColor(select.value);
+        document.getElementById('discountBaseColour').value = color;
+    });
+}
+
+function saveThemeSettings() {
+    const inp = document.getElementById('discountBaseColour');
+    const select = document.getElementById('themeMarketplaceSelect');
+    if (inp && select && ThemeManager && inp.value) {
+        ThemeManager.setDiscountColor(inp.value, select.value);
+    }
 }
 
 function openPostPackagingSettings() {

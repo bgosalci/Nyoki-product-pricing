@@ -54,12 +54,18 @@ const DiscountAnalysis = (function() {
                 tabs.forEach(t => t.classList.remove('active'));
                 btn.classList.add('active');
                 currentMarketplaceId = btn.dataset.id || '';
+                if (window.ThemeManager) {
+                    ThemeManager.applyThemeFor(currentMarketplaceId);
+                }
                 renderTable();
                 filterRows();
             });
         });
         tabs[0].classList.add('active');
         currentMarketplaceId = tabs[0].dataset.id || '';
+        if (window.ThemeManager) {
+            ThemeManager.applyThemeFor(currentMarketplaceId);
+        }
         renderTable();
         filterRows();
     }

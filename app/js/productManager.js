@@ -1480,6 +1480,10 @@ const ProductManager = (function() {
             return products.slice();
         },
 
+        getMarketplaces: function() {
+            return marketplaces.slice();
+        },
+
         isEditingProduct: function() {
             return isEditing;
         },
