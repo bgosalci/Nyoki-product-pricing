@@ -1,0 +1,47 @@
+@media (max-width: 600px) {
+    .popup-columns {
+        flex-direction: column;
+    }
+}
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .menu-icon {
+        display: block;
+    }
+
+    .nav-buttons {
+        display: none;
+        flex-direction: column;
+    }
+
+    .nav-buttons.show {
+        display: flex;
+    }
+
+    .nav-btn {
+        border-bottom: 1px solid #e8ddd4;
+    }
+
+    .nav-btn:last-child {
+        border-bottom: none;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    .header {
+        padding: 20px;
+    }
+
+    .logo {
+        width: 60px;
+    }
+}
