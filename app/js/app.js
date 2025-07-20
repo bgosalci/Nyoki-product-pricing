@@ -16,7 +16,40 @@ function saveMarketplace() {
 }
 
 function openSettings() {
-    Popup.custom('<h2 style="text-align:left;">Settings</h2>');
+    const html = `
+        <h2 style="text-align:left;">Settings</h2>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+            <button class="btn" onclick="openThemeSettings()">Set Colour Themes</button>
+            <button class="btn" onclick="openPostPackagingSettings()">Post &amp; Packaging</button>
+        </div>`;
+    Popup.custom(html, { closeText: 'Close' });
+}
+
+function openThemeSettings() {
+    const html = `<h2 style="text-align:left;">Set Colour Themes</h2><p>Coming soon...</p>`;
+    Popup.custom(html, { closeText: 'Close' });
+}
+
+function openPostPackagingSettings() {
+    const html = `
+        <h2 style="text-align:left;">Post &amp; Packaging</h2>
+        <div class="main-content">
+            <div class="card">
+                <div class="form-group">
+                    <label for="globalPostCost">Post &amp; Shipping Cost (£)</label>
+                    <input type="number" id="globalPostCost" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="globalPackagingCost">Packaging Cost (£)</label>
+                    <input type="number" id="globalPackagingCost" step="0.01" placeholder="0.00">
+                </div>
+                <button class="btn" onclick="savePostPackaging()">Save</button>
+            </div>
+        </div>`;
+    Popup.custom(html, { closeText: 'Close' });
+    if (window.PostPackaging) {
+        PostPackaging.init();
+    }
 }
 
 function exportProducts() {
@@ -109,9 +142,6 @@ function showView(viewName) {
     } else if (viewName === 'manage-marketplaces') {
         document.getElementById('manage-marketplaces-view').classList.add('active');
         document.querySelectorAll('.nav-btn')[5].classList.add('active');
-    } else if (viewName === 'post-packaging') {
-        document.getElementById('post-packaging-view').classList.add('active');
-        document.querySelectorAll('.nav-btn')[6].classList.add('active');
     }
 }
 
