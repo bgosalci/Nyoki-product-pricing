@@ -383,6 +383,28 @@
             padding: 10px 0;
         }
 
+        .search-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .search-wrapper input {
+            padding-right: 28px;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            display: none;
+        }
+
         .file-input-label {
             background: #8b7355;
             color: white;
@@ -723,7 +745,10 @@
                 <div class="filter-bar"  style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Your Products</h2>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="text" id="searchInput" placeholder="Search products..." oninput="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
+                        <div class="search-wrapper">
+                            <input type="text" id="searchInput" placeholder="Search products..." oninput="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
+                            <button type="button" class="clear-btn">&times;</button>
+                        </div>
                         <select id="filterByCategory" onchange="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
                             <option value="">All Categories</option>
                         </select>
@@ -851,7 +876,10 @@
                 <h2>Discount Analysis</h2>
                 <div id="discountTabs" class="discount-tabs"></div>
                 <div class="filter-bar" style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="analysisSearch" placeholder="Search products..." style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                    <div class="search-wrapper">
+                        <input type="text" id="analysisSearch" placeholder="Search products..." style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                        <button type="button" class="clear-btn">&times;</button>
+                    </div>
                     <select id="analysisCategory" style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
                         <option value="">All Categories</option>
                     </select>
@@ -882,7 +910,10 @@
             <div class="card">
                 <h2>Manage Stock</h2>
                 <div class="filter-bar" style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="stockSearch" placeholder="Search products..." style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                    <div class="search-wrapper">
+                        <input type="text" id="stockSearch" placeholder="Search products..." style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
+                        <button type="button" class="clear-btn">&times;</button>
+                    </div>
                     <select id="stockCategory" style="padding:8px; border:2px solid #e8ddd4; border-radius:6px;">
                         <option value="">All Categories</option>
                     </select>

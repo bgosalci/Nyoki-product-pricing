@@ -66,6 +66,22 @@ function savePostPackaging() {
     }
 }
 
+function initSearchClearButtons() {
+    document.querySelectorAll('.search-wrapper').forEach(wrapper => {
+        const input = wrapper.querySelector('input');
+        const btn = wrapper.querySelector('.clear-btn');
+        if (!input || !btn) return;
+        const toggle = () => { btn.style.display = input.value ? 'block' : 'none'; };
+        input.addEventListener('input', toggle);
+        btn.addEventListener('click', () => {
+            input.value = '';
+            input.dispatchEvent(new Event('input'));
+            toggle();
+        });
+        toggle();
+    });
+}
+
 function searchAndFilterProducts() {
     const filterSelect = document.getElementById('filterByCategory');
     const searchInput = document.getElementById('searchInput');
@@ -127,4 +143,5 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.ManageStock) {
         ManageStock.init();
     }
+    initSearchClearButtons();
 });
