@@ -187,4 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.ManageStock) {
         ManageStock.init();
     }
+    if (window.MenuManager) {
+        MenuManager.init();
+    }
 });
