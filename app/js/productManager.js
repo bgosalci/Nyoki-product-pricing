@@ -615,7 +615,7 @@ const ProductManager = (function() {
         return `
                     <div class="product-card" id="productCard_${index}">
                         <div class="product-image">
-                            ${product.image ? `<img src="${product.image}" alt="${product.name}">` : 'No image'}
+                            ${product.image ? `<img src="${product.image}" alt="${product.name}" onclick="ProductManager.viewImage(${index})">` : 'No image'}
                         </div>
                         <div class="product-info">
                             <div class="product-name" title="${product.name}">${product.name}</div>
@@ -1404,6 +1404,13 @@ const ProductManager = (function() {
                 collapsed.classList.toggle('hidden');
                 expanded.classList.toggle('hidden');
             }
+        },
+
+        viewImage: function(index) {
+            const product = products[index];
+            if (!product || !product.image) return;
+            const html = `<div style="text-align:center;"><img src="${product.image}" alt="${product.name}" style="max-width:100%; max-height:400px; object-fit:contain; border-radius:8px;"></div>`;
+            Popup.custom(html, { closeText: 'Close' });
         },
 
         removeMarketplace: function(index) {
