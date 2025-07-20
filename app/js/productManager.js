@@ -298,8 +298,7 @@ const ProductManager = (function() {
         const baseProfit = basePrice - costs.totalCost;
         const baseMargin = (baseProfit / costs.totalCost) * 100;
         const feeDetails = selectedMarketplaces.map(mp => {
-            const percentFee = finalRetailPrice - (finalRetailPrice / (1 + mp.chargePercent / 100));
-            const fee = percentFee + mp.chargeFixed;
+            const fee = finalRetailPrice * (mp.chargePercent / 100) + mp.chargeFixed;
             const profit = baseProfit - fee;
             const margin = (profit / costs.totalCost) * 100;
             return { id: mp.id, chargePercent: mp.chargePercent, chargeFixed: mp.chargeFixed, fee, profit, margin };
@@ -813,8 +812,7 @@ const ProductManager = (function() {
             const baseMargin = (baseProfit / costs.totalCost) * 100;
 
             const feeDetails = selectedMarketplaces.map(mp => {
-                const percentFee = finalRetailPrice - (finalRetailPrice / (1 + mp.chargePercent / 100));
-                const fee = percentFee + mp.chargeFixed;
+                const fee = finalRetailPrice * (mp.chargePercent / 100) + mp.chargeFixed;
                 const profit = baseProfit - fee;
                 const margin = (profit / costs.totalCost) * 100;
                 return { id: mp.id, chargePercent: mp.chargePercent, chargeFixed: mp.chargeFixed, fee, profit, margin };
@@ -1499,8 +1497,7 @@ const ProductManager = (function() {
                 p.baseMargin = (p.baseProfit / p.totalCost) * 100;
                 if (Array.isArray(p.marketplaces)) {
                     p.marketplaces.forEach(mp => {
-                        const percentFee = p.retailPrice - (p.retailPrice / (1 + mp.chargePercent / 100));
-                        mp.fee = percentFee + mp.chargeFixed;
+                        mp.fee = p.retailPrice * (mp.chargePercent / 100) + mp.chargeFixed;
                         mp.profit = p.baseProfit - mp.fee;
                         mp.margin = (mp.profit / p.totalCost) * 100;
                     });
