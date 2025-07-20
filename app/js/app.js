@@ -26,8 +26,22 @@ function openSettings() {
 }
 
 function openThemeSettings() {
-    const html = `<h2 style="text-align:left;">Set Colour Themes</h2><p>Coming soon...</p>`;
+    const current = ThemeManager ? ThemeManager.getDiscountColor() : '#ff4d4d';
+    const html = `
+        <h2 style="text-align:left;">Set Colour Themes</h2>
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="discountBaseColour">Discount Base Colour</label>
+            <input type="color" id="discountBaseColour" value="${current}">
+        </div>
+        <button class="btn" onclick="saveThemeSettings()">Save</button>`;
     Popup.custom(html, { closeText: 'Close' });
+}
+
+function saveThemeSettings() {
+    const inp = document.getElementById('discountBaseColour');
+    if (inp && ThemeManager && inp.value) {
+        ThemeManager.setDiscountColor(inp.value);
+    }
 }
 
 function openPostPackagingSettings() {
