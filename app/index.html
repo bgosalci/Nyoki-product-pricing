@@ -342,6 +342,12 @@
             margin-bottom: 10px;
         }
 
+        .product-asin {
+            font-size: 0.9em;
+            color: #5a4a4a;
+            margin-bottom: 10px;
+        }
+
         .profit-analysis {
             background: #f9f7f4;
             border-radius: 8px;
@@ -653,12 +659,18 @@
             <div class="main-content">
                 <div class="card">
                     <h2>Create New Product</h2>
+
                     <div class="form-group">
                         <label for="productName">Product Name</label>
                         <div class="tooltip">
                             <input type="text" id="productName" placeholder="Enter product name" />
                             <span class="tooltip-text">Enter product name</span>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productASIN">Amazon Standard Identification Number</label>
+                        <input type="text" id="productASIN" placeholder="ASIN">
                     </div>
 
                     <div class="form-group">

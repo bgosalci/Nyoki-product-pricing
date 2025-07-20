@@ -68,6 +68,10 @@ const ProductManager = (function() {
                     p.stockCount = 0;
                 }
 
+                if (p.asin === undefined) {
+                    p.asin = '';
+                }
+
                 delete p.marketplaceId;
                 delete p.marketplaceFee;
                 delete p.profit;
@@ -619,6 +623,7 @@ const ProductManager = (function() {
                         </div>
                         <div class="product-info">
                             <div class="product-name" title="${product.name}">${product.name}</div>
+                            ${product.asin ? `<div class="product-asin">ASIN: ${product.asin}</div>` : ''}
                             <div class="card-collapsed">
                                 ${summarySection}
                                 ${mpSummarySection}
@@ -822,6 +827,7 @@ const ProductManager = (function() {
 
             const productData = {
                 name,
+                asin: document.getElementById('productASIN').value.trim(),
                 categoryId: document.getElementById('productCategory').value || null,
                 marketplaces: feeDetails,
                 materials: [...materials],
@@ -904,6 +910,7 @@ const ProductManager = (function() {
 
             // Populate form with product data
             document.getElementById('productName').value = product.name;
+            document.getElementById('productASIN').value = product.asin || '';
             document.getElementById('productCategory').value = product.categoryId || '';
             renderMarketplaceOptions(product.marketplaces || []);
             document.getElementById('laborCost').value = product.laborCost;
@@ -943,6 +950,7 @@ const ProductManager = (function() {
 
         clearForm: function() {
             document.getElementById('productName').value = '';
+            document.getElementById('productASIN').value = '';
             document.getElementById('productCategory').value = '';
             renderMarketplaceOptions();
             document.getElementById('productImage').value = '';
@@ -1516,6 +1524,7 @@ const ProductManager = (function() {
             const header = [
                 'ID',
                 'Name',
+                'ASIN',
                 'Category',
                 'CDN Image Link',
                 'Retail Price',
@@ -1550,6 +1559,7 @@ const ProductManager = (function() {
                 return [
                     p.id,
                     p.name,
+                    p.asin || '',
                     categoryName,
                     cdnLink,
                     p.retailPrice.toFixed(2),
@@ -1589,12 +1599,14 @@ const ProductManager = (function() {
                     }
 
                     const header = lines[0].split(',').map(col => col.replace(/"/g, '').trim());
-                    const expectedColumns = ['ID', 'Name', 'Category', 'CDN Image Link', 'Retail Price', 'Total Cost', 'Profit', 'Margin %', 'Labor Cost', 'Overhead Cost', 'Materials', 'Marketplaces', 'Stock Quantity'];
-                    
-                    if (!expectedColumns.every(col => header.includes(col))) {
+                    const requiredCols = ['ID', 'Name', 'Category', 'CDN Image Link', 'Retail Price', 'Total Cost', 'Profit', 'Margin %', 'Labor Cost', 'Overhead Cost', 'Materials', 'Marketplaces', 'Stock Quantity'];
+
+                    if (!requiredCols.every(col => header.includes(col))) {
                         Popup.alert('Invalid CSV format: Missing required columns');
                         return;
                     }
+
+                    const hasASIN = header.includes('ASIN');
 
                     const categoryMap = {};
                     categories.forEach(g => { categoryMap[g.name] = g.id; });
@@ -1618,6 +1630,7 @@ const ProductManager = (function() {
                             const productData = {
                                 id: ++maxId,
                                 name: rowData['Name'] || '',
+                                asin: hasASIN ? (rowData['ASIN'] || '') : '',
                                 retailPrice: parseFloat(rowData['Retail Price']) || 0,
                                 totalCost: parseFloat(rowData['Total Cost']) || 0,
                                 laborCost: parseFloat(rowData['Labor Cost']) || 0,
