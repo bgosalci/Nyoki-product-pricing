@@ -149,14 +149,18 @@
         <div id="view-products-view" class="view-section">
             <div class="card">
                 <h2>Your Products</h2>
-                <div class="filter-bar" style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="searchInput" placeholder="Search products..." oninput="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
-                    <select id="filterByCategory" onchange="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
-                        <option value="">All Categories</option>
-                    </select>
-                    <button class="btn" style="padding: 8px 25px; min-width: 130px; white-space: nowrap;" onclick="exportProducts()">Export CSV</button>
-                    <button class="btn btn-secondary" style="padding: 8px 25px; min-width: 130px; white-space: nowrap;" onclick="importProducts()">Import CSV</button>
-                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCSVFile(event)">
+                <div class="filter-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap:10px;">
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="searchInput" placeholder="Search products..." oninput="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
+                        <select id="filterByCategory" onchange="searchAndFilterProducts()" style="padding: 8px; border: 2px solid #e8ddd4; border-radius: 6px;">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn" style="padding: 8px 25px; min-width: 130px; white-space: nowrap;" onclick="exportProducts()">Export CSV</button>
+                        <button class="btn btn-secondary" style="padding: 8px 25px; min-width: 130px; white-space: nowrap;" onclick="importProducts()">Import CSV</button>
+                        <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCSVFile(event)">
+                    </div>
                 </div>
                 <div id="productsList" class="product-grid">
                     <p style="text-align: center; color: #999; font-style: italic; grid-column: 1/-1;">No products created yet</p>
