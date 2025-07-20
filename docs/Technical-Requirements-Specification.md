@@ -1,12 +1,12 @@
 Nyoki Product Pricing Calculator
-Version: 1.0
-Date: July 2025
+Version: 1.1
+Date: October 2025
 Author: Development Team
 Document Type: Technical Requirements Specification
 
 
 1. Executive Summary
-The Nyoki Product Pricing Calculator is a web-based application designed to help artisans and small businesses calculate accurate product pricing by tracking all associated costs including materials, labor, overhead, shipping, and packaging. The application provides comprehensive cost analysis, profit margin calculations, and product catalog management with category organization capabilities.
+The Nyoki Product Pricing Calculator is a web-based application designed to help artisans and small businesses calculate accurate product pricing by tracking all associated costs including materials, labor, overhead, shipping, and packaging. The application provides comprehensive cost analysis, profit margin calculations, discount analysis, inventory tracking, and marketplace fee management. Data can be imported or exported via CSV files and products are organized with flexible category and marketplace settings.
 
 2. Functional Requirements
 2.1 Product Management
@@ -22,6 +22,8 @@ Labor cost (decimal, £0.00 format, max £999,999.99)
 Overhead cost (decimal, £0.00 format, max £999,999.99)
 Post & shipping cost (decimal, £0.00 format, max £999,999.99)
 Packaging cost (decimal, £0.00 format, max £999,999.99)
+Amazon ASIN (optional, text, max 50 characters)
+Initial stock quantity (integer, ≥0)
 
 
 
@@ -49,6 +51,7 @@ Complete cost breakdown
 Total cost, retail price, profit, and margin
 Materials list with individual costs
 Edit and delete action buttons
+Product image SHALL enlarge on click or tap
 
 
 
@@ -143,6 +146,46 @@ REQ-FILTER-004: Users SHALL be able to filter products by category
 REQ-FILTER-005: "All Categories" option SHALL display all products
 REQ-FILTER-006: Filtering SHALL be dynamic without page reload
 
+2.6 Inventory Management
+2.6.1 Stock View
+
+REQ-STOCK-001: Users SHALL be able to view all products with current stock levels
+REQ-STOCK-002: Stock list SHALL support search and category filtering
+
+2.6.2 Stock Editing
+
+REQ-STOCK-003: Users SHALL be able to edit stock quantities inline
+REQ-STOCK-004: Changes SHALL be saved with a Save Changes button
+REQ-STOCK-005: Low and zero stock levels SHALL be visually highlighted
+
+2.6.3 CSV Import/Export
+
+REQ-STOCK-006: Stock quantities SHALL be included when importing products from CSV
+REQ-STOCK-007: Stock quantities SHALL be included when exporting products to CSV
+
+2.7 Discount Analysis
+2.7.1 Profit at Discounts
+
+REQ-DISC-001: System SHALL display profit and margin at 10%, 20%, 30%, 40% and 50% discounts
+REQ-DISC-002: Marketplace-specific tabs SHALL deduct associated fees from discounted prices
+
+2.7.2 Theme and Settings
+
+REQ-DISC-003: Users SHALL be able to set discount table colours per marketplace
+REQ-DISC-004: Global post & packaging costs SHALL be configurable from the settings dialog
+REQ-DISC-005: A settings icon SHALL open the configuration dialog from any view
+
+2.8 Data Import and Export
+2.8.1 Product Data
+
+REQ-CSV-001: Users SHALL be able to export all products to CSV including materials, costs, stock and marketplaces
+REQ-CSV-002: Users SHALL be able to import products from CSV with the same fields
+
+2.8.2 Category and Marketplace Data
+
+REQ-CSV-003: Users SHALL be able to import and export categories via CSV
+REQ-CSV-004: Users SHALL be able to import and export marketplaces via CSV
+
 
 3. Technical Requirements
 3.1 Architecture
@@ -213,6 +256,7 @@ Border radius: 8-15px for cards and buttons
 REQ-UI-002: Application SHALL use responsive grid layout
 REQ-UI-003: Navigation SHALL be tab-based with three sections
 REQ-UI-004: Forms SHALL be organized in logical categoryings
+REQ-UI-005: Main navigation tabs SHALL remain sticky at the top of the page
 
 4.2 Responsive Design
 4.2.1 Mobile Compatibility
@@ -255,10 +299,13 @@ javascriptProduct {
   overheadCost: Number (decimal, ≥0)
   postCost: Number (decimal, ≥0)
   packagingCost: Number (decimal, ≥0)
+  stockCount: Number (integer, ≥0)
+  asin: String (optional, max 50 chars)
   totalCost: Number (calculated)
   retailPrice: Number (decimal, >0)
   margin: Number (calculated percentage)
   profit: Number (calculated)
+  marketplaces: Array<Marketplace>
 }
 5.1.2 Material Object
 javascriptMaterial {
@@ -271,6 +318,15 @@ javascriptCategory {
   name: String (required, max 255 chars, unique)
   description: String (optional, max 1000 chars)
   color: String (hex color code)
+}
+
+5.1.4 Marketplace Object
+javascriptMarketplace {
+  id: Number (unique, auto-increment)
+  name: String (required, max 255 chars)
+  feePercent: Number (decimal, ≥0)
+  feeFixed: Number (decimal, ≥0)
+  themeColor: String (hex color code)
 }
 5.2 Data Validation
 5.2.1 Input Validation
@@ -336,22 +392,21 @@ REQ-DEPLOY-006: No server-side requirements SHALL be needed
 9.1 Potential Features
 9.1.1 Data Export
 
-REQ-FUTURE-001: CSV export capability for products and costs
-REQ-FUTURE-002: PDF report generation for pricing analysis
-REQ-FUTURE-003: Backup and restore functionality
+REQ-FUTURE-001: PDF report generation for pricing analysis
+REQ-FUTURE-002: Backup and restore functionality
 
 9.1.2 Advanced Features
 
-REQ-FUTURE-004: Bulk pricing updates
-REQ-FUTURE-005: Cost trend analysis
-REQ-FUTURE-006: Multi-currency support
-REQ-FUTURE-007: Template system for similar products
+REQ-FUTURE-003: Bulk pricing updates
+REQ-FUTURE-004: Cost trend analysis
+REQ-FUTURE-005: Multi-currency support
+REQ-FUTURE-006: Template system for similar products
 
 9.1.3 Integration Options
 
-REQ-FUTURE-008: E-commerce platform integration
-REQ-FUTURE-009: Accounting software export
-REQ-FUTURE-010: Cloud storage synchronization
+REQ-FUTURE-007: E-commerce platform integration
+REQ-FUTURE-008: Accounting software export
+REQ-FUTURE-009: Cloud storage synchronization
 
 
 10. Testing Requirements
@@ -430,6 +485,7 @@ Material: Raw material or component used in product creation
 Margin: Percentage of profit relative to cost
 Product Category: Category for organizing related products
 SPA: Single Page Application
+ASIN: Amazon Standard Identification Number
 
 Appendix B: Assumptions
 
