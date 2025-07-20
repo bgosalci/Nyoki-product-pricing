@@ -269,6 +269,16 @@ const basePrice = vatRate > 0 ? finalRetailPrice / (1 + vatRate / 100) : finalRe
 const formattedPrice = `£${price.toFixed(2)}`;
 ```
 
+### Fee Deduction Calculation
+Use the VAT deduction pattern when removing marketplace fees from a price.
+
+```javascript
+// Deduct percentage-based marketplace fee from a price
+const fee = price - (price / ((feePercent / 100) + 1));
+```
+
+If a fixed charge also applies, add that fixed value to the calculated `fee`.
+
 ### Event Delegation
 ```javascript
 // Use event delegation for dynamic content
