@@ -109,6 +109,11 @@ saveProduct: function() {
 - **Font Family**: Georgia serif for professional, artisan-friendly appearance
 - **Hierarchy**: Clear heading sizes (h1: 2.5em, h2: 1.4em)
 - **Line Height**: 1.6 for readability
+## New Modules
+- **ThemeManager**: Stores discount colour themes in `nyoki_discount_theme` and applies colours per marketplace.
+- **PostPackaging**: Manages global post & packaging costs using `nyoki_post_packaging` and updates product forms.
+- **ManageStock**: Provides inventory table with colour-coded inputs for low or zero stock.
+- **Settings Menu**: `openSettings()` opens options for themes and post/packaging.
 
 ## 📊 Data Management Rules
 
@@ -291,8 +296,8 @@ container.addEventListener('click', function(e) {
 ```
 
 ### Discount Analysis
-When implementing marketplace fee deductions in discount analysis tables, ensure that marketplace fees are calculated and 
-deducted for each individual discount percentage column (e.g., 10%, 20%, 30%, 40%, 50%), not just applied once to the overall calculation. 
+When implementing marketplace fee deductions in discount analysis tables, ensure that marketplace fees are calculated and
+deducted for each individual discount percentage column (e.g., 10%, 20%, 30%, 40%, 50%), not just applied once to the overall calculation.
 Each discount value needs its own fee calculation based on the discounted price for that specific percentage.
 
 ### Fee Based Discount Calculations
@@ -301,4 +306,3 @@ When implementing discount calculations that involve marketplace fees and VAT, a
 ### Base Price Discount Calculations
 When fixing discount calculations that involve marketplace fees and VAT, ensure to test both marketplace-specific tabs AND the Base tab (products without marketplace fees). The Base tab calculation logic can be different from marketplace-specific calculations and may break when VAT handling is modified.
 
-These rules ensure consistency with the existing codebase and maintain the high-quality, professional standards of the Nyoki Product Pricing Calculator.

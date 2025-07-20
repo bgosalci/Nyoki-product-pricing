@@ -16,6 +16,8 @@ A comprehensive web-based pricing calculator designed specifically for artisans,
 - **Real-time Calculations**: Instant cost breakdowns and profit margin updates
 - **Image Support**: Upload product images or use CDN links
 - **Flexible Pricing**: Set desired margin percentage or fixed retail price
+- **Stock Tracking**: Manage inventory in a dedicated stock view
+- **ASIN Field**: Store Amazon ASIN for each product
 
 ### Organization & Categorization
 - **Product Categories**: Organize products with custom colors and descriptions
@@ -28,9 +30,14 @@ A comprehensive web-based pricing calculator designed specifically for artisans,
 - **Profit Analysis**: See profit margins after marketplace fees
 
 ### Data Management
-- **CSV Export**: Download complete product data for external analysis
+- **CSV Import/Export**: Transfer products, categories, and marketplaces via CSV files
 - **Local Storage**: All data persists in your browser
 - **No Backend Required**: Fully client-side application
+### Discount Analysis
+- View profit and margin at 10-50% discounts
+- Marketplace tabs deduct fees automatically
+- Customizable colour themes per marketplace
+- Access global settings to configure themes and post & packaging costs
 
 ## 🚀 Quick Start
 
@@ -85,6 +92,14 @@ cd app/ && python -m SimpleHTTPServer 8000
 - Includes complete cost breakdowns, materials, and marketplace information
 - Perfect for accounting software or external analysis
 
+### 5. Manage Stock
+- Use the **Manage Stock** view to update inventory levels
+- Filter by category and search by product name
+- Click **Save Changes** to persist stock counts
+
+### 6. Customize Settings
+- Open the gear icon to adjust discount colours or global post & packaging costs
+
 ## 🏗️ Architecture
 
 ### Technology Stack
@@ -99,10 +114,12 @@ app/
 ├── index.html              # Main SPA interface
 ├── js/
 │   ├── productManager.js   # Core business logic (closure-based)
+│   ├── discountAnalysis.js  # Profit analysis at different discounts
+│   ├── manageStock.js      # Inventory management view
+│   ├── themeManager.js     # Handles discount colour themes
+│   ├── postPackaging.js    # Global post & packaging settings
 │   ├── app.js             # UI event handling and navigation
 │   └── popup.js           # Modal dialog utility
-└── Nyoki-transparent-logo-lrg.png  # Brand assets
-
 docs/
 └── Technical-Requirements-Specification.md  # Detailed technical specs
 ```
@@ -157,6 +174,7 @@ The codebase follows a clean separation of concerns:
     id: Number,
     name: String,
     categoryId: Number,
+    asin: String,
     materials: Array<{name: String, cost: Number}>,
     laborCost: Number,
     overheadCost: Number,
